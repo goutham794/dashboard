@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Daily Watchlist</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f9;
+      --surface: #ffffff;
+      --surface-strong: #eef4f1;
+      --text: #172026;
+      --muted: #5f6b75;
+      --line: #d8dee5;
+      --accent: #0f6b57;
+      --accent-strong: #0b4f41;
+      --warn: #9a4b15;
+      --shadow: 0 18px 45px rgba(23, 32, 38, 0.08);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 20px;
+      align-items: end;
+      padding: 10px 0 28px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 760;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 4.4rem);
+      line-height: 0.96;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 760px;
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .summary {
+      min-width: 190px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .summary strong {
+      display: block;
+      font-size: 1.6rem;
+      line-height: 1;
+    }
+
+    .summary span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .feed {
+      display: grid;
+      gap: 16px;
+      margin-top: 28px;
+    }
+
+    .video {
+      display: grid;
+      grid-template-columns: minmax(220px, 34%) minmax(0, 1fr);
+      gap: 18px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .player {
+      position: relative;
+      width: 100%;
+      min-height: 180px;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      border-radius: 6px;
+      background: #26323a;
+    }
+
+    .player iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+      background: #111820;
+    }
+
+    .player-trigger {
+      position: relative;
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-height: 180px;
+      overflow: hidden;
+      border: 0;
+      padding: 0;
+      background: #26323a;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .player-trigger img {
+      width: 100%;
+      height: 100%;
+      min-height: 180px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .player-trigger::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(17, 24, 32, 0.08), rgba(17, 24, 32, 0.28));
+      pointer-events: none;
+    }
+
+    .play-badge {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      z-index: 2;
+      width: 64px;
+      height: 44px;
+      border-radius: 8px;
+      background: rgba(15, 107, 87, 0.94);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.24);
+      transform: translate(-50%, -50%);
+    }
+
+    .play-badge::before {
+      content: "";
+      position: absolute;
+      left: 26px;
+      top: 12px;
+      width: 0;
+      height: 0;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+      border-left: 16px solid #ffffff;
+    }
+
+    .player-trigger:hover .play-badge,
+    .player-trigger:focus-visible .play-badge {
+      background: var(--accent-strong);
+    }
+
+    .player-message {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      color: #ffffff;
+      text-align: center;
+      line-height: 1.5;
+      background: #172026;
+    }
+
+    .player-message code {
+      white-space: nowrap;
+    }
+
+    .rank {
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--accent-strong);
+      font-weight: 780;
+    }
+
+    .video-body {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.4;
+    }
+
+    .video h2 {
+      margin: 0;
+      font-size: clamp(1.2rem, 3vw, 1.75rem);
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    .reason {
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .watch-link,
+    .action-button {
+      min-height: 40px;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      padding: 9px 13px;
+      font: inherit;
+      font-weight: 680;
+      letter-spacing: 0;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .watch-link {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
+    .watch-link:hover {
+      background: var(--accent-strong);
+    }
+
+    .action-button {
+      background: #ffffff;
+      color: var(--text);
+    }
+
+    .action-button[data-active="true"] {
+      background: var(--surface-strong);
+      border-color: #9ab8ae;
+      color: var(--accent-strong);
+    }
+
+    .empty-state {
+      margin-top: 28px;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .empty-state h2 {
+      margin: 0 0 8px;
+    }
+
+    .empty-state p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        padding: 22px 14px 36px;
+      }
+
+      .topbar,
+      .video {
+        grid-template-columns: 1fr;
+      }
+
+      .summary {
+        min-width: 0;
+      }
+
+      .player,
+      .player-trigger,
+      .player-trigger img {
+        min-height: 190px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Saturday, May 30, 2026</p>
+        <h1>Daily Watchlist</h1>
+        <p class="subtitle">A finite YouTube feed for today, selected from your configured channels. Current interests: practical AI engineering, backend systems, personal finance, fitness and health, Indian technology ecosystem.</p>
+      </div>
+      <div class="summary">
+        <strong>10 videos</strong>
+        <span>Generated 2026-05-30 01:08</span>
+      </div>
+    </header>
+
+    <section class="feed" aria-label="Recommended videos">
+      
+      <article class="video">
+        <div class="player" data-player>
+          <button class="player-trigger" type="button" data-embed-url="https://www.youtube-nocookie.com/embed/AREWYbVtX64?autoplay=1&amp;rel=0" data-embed-title="Intelligence is collective, not artificial — Prof. Michael I. Jordan (UC Berkeley / Inria)" aria-label="Play Intelligence is collective, not artificial — Prof. Michael I. Jordan (UC Berkeley / Inria) on this page">
+            <span class="rank">1</span>
+            <img src="https://i2.ytimg.com/vi/AREWYbVtX64/hqdefault.jpg" alt="" loading="lazy">
+            <span class="play-badge" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="video-body">
+          <div>
+            <div class="meta">Machine Learning Street Talk &middot; May 20, 2026 &middot; 24K views</div>
+            <h2>Intelligence is collective, not artificial — Prof. Michael I. Jordan (UC Berkeley / Inria)</h2>
+            <p class="reason">Matches practical ai engineering, backend systems.</p>
+          </div>
+          <div class="actions">
+            <button class="watch-link" type="button" data-embed-url="https://www.youtube-nocookie.com/embed/AREWYbVtX64?autoplay=1&amp;rel=0" data-embed-title="Intelligence is collective, not artificial — Prof. Michael I. Jordan (UC Berkeley / Inria)">Play here</button>
+            <a class="action-button" href="https://www.youtube.com/watch?v=AREWYbVtX64" target="_blank" rel="noreferrer">Open YouTube</a>
+            <button class="action-button" type="button" data-video-id="AREWYbVtX64" data-action="watched">Watched</button>
+            <button class="action-button" type="button" data-video-id="AREWYbVtX64" data-action="saved">Save</button>
+            <button class="action-button" type="button" data-video-id="AREWYbVtX64" data-action="less_like_this">Less like this</button>
+          </div>
+        </div>
+      </article>
+    
+
+      <article class="video">
+        <div class="player" data-player>
+          <button class="player-trigger" type="button" data-embed-url="https://www.youtube-nocookie.com/embed/9OQ5vaYbGV0?autoplay=1&amp;rel=0" data-embed-title="Google’s AI endgame is here… everything you missed at I/O 2026" aria-label="Play Google’s AI endgame is here… everything you missed at I/O 2026 on this page">
+            <span class="rank">2</span>
+            <img src="https://i2.ytimg.com/vi/9OQ5vaYbGV0/hqdefault.jpg" alt="" loading="lazy">
+            <span class="play-badge" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="video-body">
+          <div>
+            <div class="meta">Fireship &middot; May 22, 2026 &middot; 965K views</div>
+            <h2>Google’s AI endgame is here… everything you missed at I/O 2026</h2>
+            <p class="reason">Matches practical ai engineering.</p>
+          </div>
+          <div class="actions">
+            <button class="watch-link" type="button" data-embed-url="https://www.youtube-nocookie.com/embed/9OQ5vaYbGV0?autoplay=1&amp;rel=0" data-embed-title="Google’s AI endgame is here… everything you missed at I/O 2026">Play here</button>
+            <a class="action-button" href="https://www.youtube.com/watch?v=9OQ5vaYbGV0" target="_blank" rel="noreferrer">Open YouTube</a>
+            <button class="action-button" type="button" data-video-id="9OQ5vaYbGV0" data-action="watched">Watched</button>
+            <button class="action-button" type="button" data-video-id="9OQ5vaYbGV0" data-action="saved">Save</button>
+            <button class="action-button" type="button" data-video-id="9OQ5vaYbGV0" data-action="less_like_this">Less like this</button>
+          </div>
+        </div>
+      </article>
+    
+
+      <article class="video">
+        <div class="player" data-player>
+          <button class="player-trigger" type="button" data-embed-url="https://www.youtube-nocookie.com/embed/JfPWbttemYE?autoplay=1&amp;rel=0" data-embed-title="The forgotten developer who saved JavaScript..." aria-label="Play The forgotten developer who saved JavaScript... on this page">
+            <span class="rank">3</span>
+            <img src="https://i3.ytimg.com/vi/JfPWbttemYE/hqdefault.jpg" alt="" loading="lazy">
+            <span class="play-badge" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="video-body">
+          <div>
+            <div class="meta">Fireship &middot; May 29, 2026 &middot; 43K views</div>
+            <h2>The forgotten developer who saved JavaScript...</h2>
+            <p class="reason">Published yesterday.</p>
+          </div>
+          <div class="actions">
+            <button class="watch-link" type="button" data-embed-url="https://www.youtube-nocookie.com/embed/JfPWbttemYE?autoplay=1&amp;rel=0" data-embed-title="The forgotten developer who saved JavaScript...">Play here</button>
+            <a class="action-button" href="https://www.youtube.com/watch?v=JfPWbttemYE" target="_blank" rel="noreferrer">Open YouTube</a>
+            <button class="action-button" type="button" data-video-id="JfPWbttemYE" data-action="watched">Watched</button>
+            <button class="action-button" type="button" data-video-id="JfPWbttemYE" data-action="saved">Save</button>
+            <button class="action-button" type="button" data-video-id="JfPWbttemYE" data-action="less_like_this">Less like this</button>
+          </div>
+        </div>
+      </article>
+    
+
+      <article class="video">
+        <div class="player" data-player>
+          <button class="player-trigger" type="button" data-embed-url="https://www.youtube-nocookie.com/embed/YNyX91X0lPs?autoplay=1&amp;rel=0" data-embed-title="Exploring the Magic of India with David Blaine (Full Episode) | Do Not Attempt | National Geographic" aria-label="Play Exploring the Magic of India with David Blaine (Full Episode) | Do Not Attempt | National Geographic on this page">
+            <span class="rank">4</span>
+            <img src="https://i2.ytimg.com/vi/YNyX91X0lPs/hqdefault.jpg" alt="" loading="lazy">
+            <span class="play-badge" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="video-body">
+          <div>
+            <div class="meta">National Geographic &middot; May 29, 2026 &middot; 12K views</div>
+            <h2>Exploring the Magic of India with David Blaine (Full Episode) | Do Not Attempt | National Geographic</h2>
+            <p class="reason">Published yesterday.</p>
+          </div>
+          <div class="actions">
+            <button class="watch-link" type="button" data-embed-url="https://www.youtube-nocookie.com/embed/YNyX91X0lPs?autoplay=1&amp;rel=0" data-embed-title="Exploring the Magic of India with David Blaine (Full Episode) | Do Not Attempt | National Geographic">Play here</button>
+            <a class="action-button" href="https://www.youtube.com/watch?v=YNyX91X0lPs" target="_blank" rel="noreferrer">Open YouTube</a>
+            <button class="action-button" type="button" data-video-id="YNyX91X0lPs" data-action="watched">Watched</button>
+            <button class="action-button" type="button" data-video-id="YNyX91X0lPs" data-action="saved">Save</button>
+            <button class="action-button" type="button" data-video-id="YNyX91X0lPs" data-action="less_like_this">Less like this</button>
+          </div>
+        </div>
+      </article>
+    
+
+      <article class="video">
+        <div class="player" data-player>
+          <button class="player-trigger" type="button" data-embed-url="https://www.youtube-nocookie.com/embed/o-akdcwQzHo?autoplay=1&amp;rel=0" data-embed-title="Keeping a Mole Alive (Full Episode) | Inside the CIA: Secrets &amp; Spies | National Geographic" aria-label="Play Keeping a Mole Alive (Full Episode) | Inside the CIA: Secrets &amp; Spies | National Geographic on this page">
+            <span class="rank">5</span>
+            <img src="https://i4.ytimg.com/vi/o-akdcwQzHo/hqdefault.jpg" alt="" loading="lazy">
+            <span class="play-badge" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="video-body">
+          <div>
+            <div class="meta">National Geographic &middot; May 28, 2026 &middot; 17K views</div>
+            <h2>Keeping a Mole Alive (Full Episode) | Inside the CIA: Secrets &amp; Spies | National Geographic</h2>
+            <p class="reason">Fits the current watchlist filters.</p>
+          </div>
+          <div class="actions">
+            <button class="watch-link" type="button" data-embed-url="https://www.youtube-nocookie.com/embed/o-akdcwQzHo?autoplay=1&amp;rel=0" data-embed-title="Keeping a Mole Alive (Full Episode) | Inside the CIA: Secrets &amp; Spies | National Geographic">Play here</button>
+            <a class="action-button" href="https://www.youtube.com/watch?v=o-akdcwQzHo" target="_blank" rel="noreferrer">Open YouTube</a>
+            <button class="action-button" type="button" data-video-id="o-akdcwQzHo" data-action="watched">Watched</button>
+            <button class="action-button" type="button" data-video-id="o-akdcwQzHo" data-action="saved">Save</button>
+            <button class="action-button" type="button" data-video-id="o-akdcwQzHo" data-action="less_like_this">Less like this</button>
+          </div>
+        </div>
+      </article>
+    
+
+      <article class="video">
+        <div class="player" data-player>
+          <button class="player-trigger" type="button" data-embed-url="https://www.youtube-nocookie.com/embed/xyyvs6vn1qw?autoplay=1&amp;rel=0" data-embed-title="Embarrassing Mistakes, Smartest Philosophers, and Why I Hate Irony | 900k QnA" aria-label="Play Embarrassing Mistakes, Smartest Philosophers, and Why I Hate Irony | 900k QnA on this page">
+            <span class="rank">6</span>
+            <img src="https://i1.ytimg.com/vi/xyyvs6vn1qw/hqdefault.jpg" alt="" loading="lazy">
+            <span class="play-badge" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="video-body">
+          <div>
+            <div class="meta">Unsolicited advice &middot; May 29, 2026 &middot; 4K views</div>
+            <h2>Embarrassing Mistakes, Smartest Philosophers, and Why I Hate Irony | 900k QnA</h2>
+            <p class="reason">Published yesterday.</p>
+          </div>
+          <div class="actions">
+            <button class="watch-link" type="button" data-embed-url="https://www.youtube-nocookie.com/embed/xyyvs6vn1qw?autoplay=1&amp;rel=0" data-embed-title="Embarrassing Mistakes, Smartest Philosophers, and Why I Hate Irony | 900k QnA">Play here</button>
+            <a class="action-button" href="https://www.youtube.com/watch?v=xyyvs6vn1qw" target="_blank" rel="noreferrer">Open YouTube</a>
+            <button class="action-button" type="button" data-video-id="xyyvs6vn1qw" data-action="watched">Watched</button>
+            <button class="action-button" type="button" data-video-id="xyyvs6vn1qw" data-action="saved">Save</button>
+            <button class="action-button" type="button" data-video-id="xyyvs6vn1qw" data-action="less_like_this">Less like this</button>
+          </div>
+        </div>
+      </article>
+    
+
+      <article class="video">
+        <div class="player" data-player>
+          <button class="player-trigger" type="button" data-embed-url="https://www.youtube-nocookie.com/embed/E68VQpR2GY8?autoplay=1&amp;rel=0" data-embed-title="What You Would See During Civilization Collapse" aria-label="Play What You Would See During Civilization Collapse on this page">
+            <span class="rank">7</span>
+            <img src="https://i2.ytimg.com/vi/E68VQpR2GY8/hqdefault.jpg" alt="" loading="lazy">
+            <span class="play-badge" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="video-body">
+          <div>
+            <div class="meta">Pursuit of Wonder &middot; May 27, 2026 &middot; 45K views</div>
+            <h2>What You Would See During Civilization Collapse</h2>
+            <p class="reason">Fits the current watchlist filters.</p>
+          </div>
+          <div class="actions">
+            <button class="watch-link" type="button" data-embed-url="https://www.youtube-nocookie.com/embed/E68VQpR2GY8?autoplay=1&amp;rel=0" data-embed-title="What You Would See During Civilization Collapse">Play here</button>
+            <a class="action-button" href="https://www.youtube.com/watch?v=E68VQpR2GY8" target="_blank" rel="noreferrer">Open YouTube</a>
+            <button class="action-button" type="button" data-video-id="E68VQpR2GY8" data-action="watched">Watched</button>
+            <button class="action-button" type="button" data-video-id="E68VQpR2GY8" data-action="saved">Save</button>
+            <button class="action-button" type="button" data-video-id="E68VQpR2GY8" data-action="less_like_this">Less like this</button>
+          </div>
+        </div>
+      </article>
+    
+
+      <article class="video">
+        <div class="player" data-player>
+          <button class="player-trigger" type="button" data-embed-url="https://www.youtube-nocookie.com/embed/vk0Iy8-SHw4?autoplay=1&amp;rel=0" data-embed-title="The Heretics Who Got Too Close to God - What is Mysticism?" aria-label="Play The Heretics Who Got Too Close to God - What is Mysticism? on this page">
+            <span class="rank">8</span>
+            <img src="https://i3.ytimg.com/vi/vk0Iy8-SHw4/hqdefault.jpg" alt="" loading="lazy">
+            <span class="play-badge" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="video-body">
+          <div>
+            <div class="meta">Alex O&#x27;Connor &middot; May 26, 2026 &middot; 70K views</div>
+            <h2>The Heretics Who Got Too Close to God - What is Mysticism?</h2>
+            <p class="reason">Fits the current watchlist filters.</p>
+          </div>
+          <div class="actions">
+            <button class="watch-link" type="button" data-embed-url="https://www.youtube-nocookie.com/embed/vk0Iy8-SHw4?autoplay=1&amp;rel=0" data-embed-title="The Heretics Who Got Too Close to God - What is Mysticism?">Play here</button>
+            <a class="action-button" href="https://www.youtube.com/watch?v=vk0Iy8-SHw4" target="_blank" rel="noreferrer">Open YouTube</a>
+            <button class="action-button" type="button" data-video-id="vk0Iy8-SHw4" data-action="watched">Watched</button>
+            <button class="action-button" type="button" data-video-id="vk0Iy8-SHw4" data-action="saved">Save</button>
+            <button class="action-button" type="button" data-video-id="vk0Iy8-SHw4" data-action="less_like_this">Less like this</button>
+          </div>
+        </div>
+      </article>
+    
+
+      <article class="video">
+        <div class="player" data-player>
+          <button class="player-trigger" type="button" data-embed-url="https://www.youtube-nocookie.com/embed/OEBTtMjm_4U?autoplay=1&amp;rel=0" data-embed-title="William Lane Craig vs Alex O&#x27;Connor: God and Suffering" aria-label="Play William Lane Craig vs Alex O&#x27;Connor: God and Suffering on this page">
+            <span class="rank">9</span>
+            <img src="https://i4.ytimg.com/vi/OEBTtMjm_4U/hqdefault.jpg" alt="" loading="lazy">
+            <span class="play-badge" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="video-body">
+          <div>
+            <div class="meta">Alex O&#x27;Connor &middot; May 21, 2026 &middot; 303K views</div>
+            <h2>William Lane Craig vs Alex O&#x27;Connor: God and Suffering</h2>
+            <p class="reason">Fits the current watchlist filters.</p>
+          </div>
+          <div class="actions">
+            <button class="watch-link" type="button" data-embed-url="https://www.youtube-nocookie.com/embed/OEBTtMjm_4U?autoplay=1&amp;rel=0" data-embed-title="William Lane Craig vs Alex O&#x27;Connor: God and Suffering">Play here</button>
+            <a class="action-button" href="https://www.youtube.com/watch?v=OEBTtMjm_4U" target="_blank" rel="noreferrer">Open YouTube</a>
+            <button class="action-button" type="button" data-video-id="OEBTtMjm_4U" data-action="watched">Watched</button>
+            <button class="action-button" type="button" data-video-id="OEBTtMjm_4U" data-action="saved">Save</button>
+            <button class="action-button" type="button" data-video-id="OEBTtMjm_4U" data-action="less_like_this">Less like this</button>
+          </div>
+        </div>
+      </article>
+    
+
+      <article class="video">
+        <div class="player" data-player>
+          <button class="player-trigger" type="button" data-embed-url="https://www.youtube-nocookie.com/embed/zewSCygGaFs?autoplay=1&amp;rel=0" data-embed-title="9 novels that are better than any self-help book" aria-label="Play 9 novels that are better than any self-help book on this page">
+            <span class="rank">10</span>
+            <img src="https://i3.ytimg.com/vi/zewSCygGaFs/hqdefault.jpg" alt="" loading="lazy">
+            <span class="play-badge" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="video-body">
+          <div>
+            <div class="meta">Unsolicited advice &middot; May 22, 2026 &middot; 61K views</div>
+            <h2>9 novels that are better than any self-help book</h2>
+            <p class="reason">Fits the current watchlist filters.</p>
+          </div>
+          <div class="actions">
+            <button class="watch-link" type="button" data-embed-url="https://www.youtube-nocookie.com/embed/zewSCygGaFs?autoplay=1&amp;rel=0" data-embed-title="9 novels that are better than any self-help book">Play here</button>
+            <a class="action-button" href="https://www.youtube.com/watch?v=zewSCygGaFs" target="_blank" rel="noreferrer">Open YouTube</a>
+            <button class="action-button" type="button" data-video-id="zewSCygGaFs" data-action="watched">Watched</button>
+            <button class="action-button" type="button" data-video-id="zewSCygGaFs" data-action="saved">Save</button>
+            <button class="action-button" type="button" data-video-id="zewSCygGaFs" data-action="less_like_this">Less like this</button>
+          </div>
+        </div>
+      </article>
+    
+    </section>
+  </main>
+
+  <script>
+    const storeKey = "yt-curator-actions";
+    const state = JSON.parse(localStorage.getItem(storeKey) || "{}");
+
+    function persist() {
+      localStorage.setItem(storeKey, JSON.stringify(state));
+    }
+
+    function hydrateButtons() {
+      document.querySelectorAll("[data-video-id][data-action]").forEach((button) => {
+        const videoId = button.dataset.videoId;
+        const action = button.dataset.action;
+        const videoState = state[videoId] || {};
+        button.dataset.active = videoState[action] ? "true" : "false";
+      });
+    }
+
+    function embedUrlWithOrigin(url) {
+      if (window.location.protocol !== "http:" && window.location.protocol !== "https:") {
+        return url;
+      }
+      const embedUrl = new URL(url);
+      embedUrl.searchParams.set("origin", window.location.origin);
+      return embedUrl.toString();
+    }
+
+    function showLocalFileMessage(player) {
+      const message = document.createElement("div");
+      message.className = "player-message";
+      message.innerHTML = "Embedded playback needs a local server. Run <code>uv run python -m dashboard.youtube_curator serve</code> and open the printed URL.";
+      player.replaceChildren(message);
+      player.dataset.loaded = "true";
+    }
+
+    document.addEventListener("click", (event) => {
+      const playerTrigger = event.target.closest("[data-embed-url]");
+      if (playerTrigger) {
+        const article = playerTrigger.closest(".video");
+        const player = article ? article.querySelector("[data-player]") : null;
+        if (!player || player.dataset.loaded === "true") return;
+
+        if (window.location.protocol === "file:") {
+          showLocalFileMessage(player);
+          return;
+        }
+
+        const iframe = document.createElement("iframe");
+        iframe.src = embedUrlWithOrigin(playerTrigger.dataset.embedUrl);
+        iframe.title = playerTrigger.dataset.embedTitle || "YouTube video player";
+        iframe.loading = "lazy";
+        iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+        iframe.referrerPolicy = "strict-origin-when-cross-origin";
+        iframe.allowFullscreen = true;
+
+        player.replaceChildren(iframe);
+        player.dataset.loaded = "true";
+        return;
+      }
+
+      const button = event.target.closest("[data-video-id][data-action]");
+      if (!button) return;
+      const videoId = button.dataset.videoId;
+      const action = button.dataset.action;
+      state[videoId] = state[videoId] || {};
+      state[videoId][action] = !state[videoId][action];
+      persist();
+      hydrateButtons();
+    });
+
+    hydrateButtons();
+  </script>
+</body>
+</html>

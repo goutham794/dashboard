@@ -1,0 +1,92 @@
+{
+  "profile": {
+    "interests": [
+      "practical AI engineering",
+      "backend systems",
+      "personal finance",
+      "fitness and health",
+      "Indian technology ecosystem"
+    ],
+    "preferred_terms": [
+      "python",
+      "agents",
+      "systems",
+      "engineering",
+      "health"
+    ],
+    "blocked_terms": [
+      "#shorts",
+      "youtube shorts",
+      "celebrity drama",
+      "reaction video",
+      "prank",
+      "drama"
+    ]
+  },
+  "youtube": {
+    "lookback_days": 14,
+    "max_videos_per_day": 10,
+    "min_duration_seconds": 300,
+    "max_duration_seconds": 5400,
+    "max_per_channel": 2,
+    "exclude_previously_recommended": true
+  },
+  "storage": {
+    "database_path": "data/youtube_curator.sqlite3"
+  },
+  "output": {
+    "site_dir": "site",
+    "page_title": "Daily Watchlist"
+  },
+  "channels": [
+    {
+      "id": "UCW71hQg1kDxmFIfijA8dL0Q",
+      "title": "Unsolicited advice",
+      "weight": 1.0,
+      "topics": [],
+      "enabled": true
+    },
+    {
+      "id": "UCsBjURrPoezykLs9EqgamOA",
+      "title": "Fireship",
+      "weight": 1.0,
+      "topics": [],
+      "enabled": true
+    },
+    {
+      "id": "UCMLtBahI5DMrt0NPvDSoIRQ",
+      "title": "Machine Learning Street Talk",
+      "weight": 1.0,
+      "topics": [],
+      "enabled": true
+    },
+    {
+      "id": "UC7kIy8fZavEni8Gzl8NLjOQ",
+      "title": "Alex O'Connor",
+      "weight": 1.0,
+      "topics": [],
+      "enabled": true
+    },
+    {
+      "id": "UCpVm7bg6pXKo1Pr6k5kxG9A",
+      "title": "National Geographic",
+      "weight": 1.0,
+      "topics": [],
+      "enabled": true
+    },
+    {
+      "id": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+      "title": "Pursuit of Wonder",
+      "weight": 1.0,
+      "topics": [],
+      "enabled": true
+    },
+    {
+      "id": "UC5Dw9TFdbPJoTDMSiJdIQTA",
+      "title": "Whatifalthist",
+      "weight": 1.0,
+      "topics": [],
+      "enabled": true
+    }
+  ]
+}

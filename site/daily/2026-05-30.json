@@ -1,0 +1,192 @@
+{
+  "date": "2026-05-30",
+  "generated_at": "2026-05-29T19:38:06.087146+00:00",
+  "title": "Daily Watchlist",
+  "items": [
+    {
+      "rank": 1,
+      "score": 6.279,
+      "reason": "Matches practical ai engineering, backend systems.",
+      "matched_interests": [
+        "practical AI engineering",
+        "backend systems"
+      ],
+      "video": {
+        "id": "AREWYbVtX64",
+        "channel_id": "UCMLtBahI5DMrt0NPvDSoIRQ",
+        "channel_title": "Machine Learning Street Talk",
+        "title": "Intelligence is collective, not artificial \u2014 Prof. Michael I. Jordan (UC Berkeley / Inria)",
+        "description": "Michael I. Jordan, described by Science magazine as the most influential computer scientist alive, has never thought of himself as an AI researcher. In this conversation he explains why that distinction matters.\n\nSPONSOR:\n---\nCyber Fund built the Monastery to help founders ship products that were impossible a year ago. Applications for Batch 1 are now open.\nApply now: https://cyber.fund\n---\n\nJordan trained as a statistician and cognitive scientist, and his career has been spent building machine learning systems that work in the real world: supply chains, commerce, healthcare, and large economic systems. When the field rebranded itself as AI and then AGI, he did not follow. Instead he argues that the framing is wrong. AI is better understood as a collective economic system than as a race to build a disembodied superintelligence.\n\nWe talk about why AGI is mostly a PR term, what machine learning achieved before the LLM hype cycle, and why the assistant-on-your-shoulder vision may be less compelling than it sounds. Jordan explains why explanations need to be actionable, not merely mechanistic; why AlphaFold's missing error bars matter; how prediction-powered inference changes the picture; and why drug discovery is an incentive-design problem rather than a pure pattern-matching problem.\n\nERRATA: Science magazine ranked him the most influential computer scientist, not Nature\n\n---\nTIMESTAMPS:\n00:00:00 Cold open: A demoralizing message to young builders\n00:02:04 CyberFund sponsor read\n00:02:50 From symbolic AI to machine learning systems\n00:05:42 Why AGI is mostly a PR term\n00:08:48 A collectivist, economic perspective on AI\n00:11:33 Why LLMs need system design, not hype\n00:14:50 Predictability beats faux understanding\n00:17:55 AlphaFold, bias, and prediction-powered inference\n00:21:48 Stop anthropomorphizing intelligence\n00:27:44 Drug discovery as an incentive problem\n00:32:29 The three-layer data market\n00:38:07 Social knowledge, markets, and culture\n00:45:39 Creator economics beyond Spotify\n00:48:30 How science-fiction AI narratives mislead young builders\n00:51:45 AI should improve humans, not replace them\n00:56:42 Safety is a property of the whole system\n00:58:12 Silicon Valley gurus and the cream off the top\n01:00:47 Game theory, mechanism design, and contracts\n01:04:39 Conformal prediction, e-values, and anytime inference\n01:08:11 A new liberal arts triangle for the AI era\n01:11:30 The Bayesian duck and markets as uncertainty reduction\n\n---\nREFERENCES:\nperson:\n[00:02:50] Michael I. Jordan (homepage)\nhttps://people.eecs.berkeley.edu/~jordan/\npaper:\n[00:06:01] A Collectivist, Economic Perspective on AI\nhttps://arxiv.org/abs/2507.06268\n[00:18:09]  AlphaFold\nhttps://www.nature.com/articles/s41586-021-03819-2\n[00:20:36] Prediction-Powered Inference\nhttps://arxiv.org/abs/2301.09633\n[00:24:38] On the Measure of Intelligence\nhttps://arxiv.org/abs/1911.01547\n[00:33:47] On Three-Layer Data Markets\nhttps://arxiv.org/abs/2402.09697\n[01:04:39] Conformal Prediction with Conditional Guarantees\nhttps://arxiv.org/abs/2107.07511\n[01:04:51] A Tutorial on Conformal Prediction\nhttps://www.jmlr.org/papers/v9/shafer08a.html\n[01:06:00] E-Values Expand the Scope of Conformal Prediction\nhttps://arxiv.org/abs/2503.13050\n[01:08:23] Computational Thinking\nhttps://www.cs.cmu.edu/~CompThink/papers/Wing06.pdf\nother:\n[00:11:33] The Bitter Lesson\nhttp://www.incompleteideas.net/IncIdeas/BitterLesson.html\n[00:20:50] How to use AI for discovery without leading science astray\nhttps://news.berkeley.edu/2023/11/09/how-to-use-ai-for-discovery-without-leading-science-astray/\n[00:28:20] How Should the FDA Test?\nhttps://rdi.berkeley.edu/events/sbc-assets/pdfs/Summit%20session%20speaker%20slides%20submission%20form-s1-5%20%28File%20responses%29/Slides%20in%20PDF%20%28Please%20name%20the%20submitted%20file%20as%20_firstname_-_lastname_-slides.pdf%29.%20%28File%20responses%29/27-Michael%20Jordan-Session%20V.pdf#page=15\n[00:28:40] Michael I. Jordan Session V Slides\nhttps://rdi.berkeley.edu/events/sbc-assets/pdfs/Summit%20session%20speaker%20slides%20submission%20form-s1-5%20%28File%20responses%29/Slides%20in%20PDF%20%28Please%20name%20the%20submitted%20file%20as%20_firstname_-_lastname_-slides.pdf%29.%20%28File%20responses%29/27-Michael%20Jordan-Session%20V.pdf#page=1\n[01:08:13] Three Foundational Disciplines\nhttps://rdi.berkeley.edu/events/sbc-assets/pdfs/Summit%20session%20speaker%20slides%20submission%20form-s1-5%20%28File%20responses%29/Slides%20in%20PDF%20%28Please%20name%20the%20submitted%20file%20as%20_firstname_-_lastname_-slides.pdf%29.%20%28File%20responses%29/27-Michael%20Jordan-Session%20V.pdf#page=35\norganization:\n[00:45:58] UnitedMasters\nhttps://www.unitedmasters.com/\nbook:\n[00:48:30] Human Compatible: Artificial Intelligence and the Problem of Control\nhttps://aima.cs.berkeley.edu/~russell/hc.html\n[01:00:56] Theory of Games and Economic Behavior\nhttps://press.princeton.edu/books/paperback/9780691130613/theory-of-games-and-economic-behavior",
+        "url": "https://www.youtube.com/watch?v=AREWYbVtX64",
+        "thumbnail_url": "https://i2.ytimg.com/vi/AREWYbVtX64/hqdefault.jpg",
+        "published_at": "2026-05-20T08:26:23+00:00",
+        "duration_seconds": null,
+        "view_count": 24117
+      }
+    },
+    {
+      "rank": 2,
+      "score": 5.013,
+      "reason": "Matches practical ai engineering.",
+      "matched_interests": [
+        "practical AI engineering"
+      ],
+      "video": {
+        "id": "9OQ5vaYbGV0",
+        "channel_id": "UCsBjURrPoezykLs9EqgamOA",
+        "channel_title": "Fireship",
+        "title": "Google\u2019s AI endgame is here\u2026 everything you missed at I/O 2026",
+        "description": "Try using Emergent's specialized agents in parallel to build any full-stack application -\u00a0https://app.emergent.sh/?utm_shift=redirect&via=fireship\n\nAt Google I/O 2026, Sundar Pichai and Demis Hassabis set out the roadmap for Google's 'agentic Gemini era', with Gemini hiding inside every product like the microplastics in your bloodstream. But what else did they announce?\n\n#coding #programming #google #ai \n\n\ud83d\udd16 Topics Covered\n- Google I/O 2026 Announcements\n- Everything is an agent now\n- Google's TPU chip\n- Gemini Omni\n- Antigravity\n\nWant more Fireship?\n\n\ud83d\uddde\ufe0f Newsletter: https://bytes.dev\n\ud83e\udde0 Courses: https://fireship.dev",
+        "url": "https://www.youtube.com/watch?v=9OQ5vaYbGV0",
+        "thumbnail_url": "https://i2.ytimg.com/vi/9OQ5vaYbGV0/hqdefault.jpg",
+        "published_at": "2026-05-22T16:38:42+00:00",
+        "duration_seconds": null,
+        "view_count": 965257
+      }
+    },
+    {
+      "rank": 3,
+      "score": 3.716,
+      "reason": "Published yesterday.",
+      "matched_interests": [],
+      "video": {
+        "id": "JfPWbttemYE",
+        "channel_id": "UCsBjURrPoezykLs9EqgamOA",
+        "channel_title": "Fireship",
+        "title": "The forgotten developer who saved JavaScript...",
+        "description": "Clerk's new CLI sets up end-to-end auth for your entire app. Try it - https://go.clerk.com/0mR9oMU\n\nJavaScript was terrible... until one man was brave enough to save it.\n\n#coding #programming #javascript \n\nWant more Fireship?\n\n\ud83d\uddde\ufe0f Newsletter: https://bytes.dev\n\ud83e\udde0 Courses: https://fireship.dev",
+        "url": "https://www.youtube.com/watch?v=JfPWbttemYE",
+        "thumbnail_url": "https://i3.ytimg.com/vi/JfPWbttemYE/hqdefault.jpg",
+        "published_at": "2026-05-29T17:06:48+00:00",
+        "duration_seconds": null,
+        "view_count": 43189
+      }
+    },
+    {
+      "rank": 4,
+      "score": 3.692,
+      "reason": "Published yesterday.",
+      "matched_interests": [],
+      "video": {
+        "id": "YNyX91X0lPs",
+        "channel_id": "UCpVm7bg6pXKo1Pr6k5kxG9A",
+        "channel_title": "National Geographic",
+        "title": "Exploring the Magic of India with David Blaine (Full Episode) | Do Not Attempt | National Geographic",
+        "description": "David Blaine journeys to India, the historic birthplace of magic, in this full episode of David Blaine: Do Not Attempt from National Geographic. In this episode, the world-renowned magician and mentalist explores belief and willpower through the lens of magic. He meets magician and illusionist Karan Singh, who takes David on a tour of Jaipur to learn about the history of street magic. In Kurukshetra, Delhi, and beyond, he meets amazing performers with skills not found anywhere else on Earth. \n\nDavid Blaine Do Not Attempt | S1, E3\n\nExplore the World with National Geographic subscriptions: https://natgeo.com/ytngmagazine\n\n\u27a1 Subscribe: https://on.natgeo.com/4p5A0D6\n\u27a1 Get more Nat Geo Full Episodes: https://on.natgeo.com/3V5ZfHI\n\u27a1 Get wild with Nat Geo Animals Full Episodes: https://on.natgeo.com/3V2EOLO\n\nAnd check out more National Geographic series and specials here:\n\u27a1 Disney Plus: https://on.natgeo.com/3q6on5p\n\u27a1 Hulu: https://on.natgeo.com/3Qor0Ko\n\u27a1 NGTV: https://natgeo.com/tv\n\u27a1 ABC: https://abc.com\n\n#NationalGeographic #DavidBlaineDoNotAttempt #FullEpisode\n\nAbout National Geographic:\nNational Geographic is the world's premium destination for critically acclaimed storytelling around science and exploration. Discover amazing wildlife, ancient civilizations, hidden worlds, and the incredible wonders of our Earth. Through world-class scientists, photographers, journalists, and filmmakers, Nat Geo inspires fans of all ages to connect with, explore, and care about the world.\n\nGet More National Geographic:\nOfficial Site: https://nationalgeographic.com\nInstagram: https://instagram.com/natgeo \nFacebook: https://facebook.com/natgeo\nThreads: https://threads.com/@natgeo\nX: https://x.com/NatGeo\nLinkedIn: https://linkedin.com/company/national-geographic\nTikTok: https://tiktok.com/@natgeo\nReddit: https://reddit.com/user/nationalgeographic\nPinterest: https://pinterest.com/natgeo\n\nIndia, the Birthplace of Magic (Full Episode) | David Blaine Do Not Attempt | National Geographic\nhttps://youtu.be/YNyX91X0lPs\n\nNational Geographic\nyoutube.com/natgeo",
+        "url": "https://www.youtube.com/watch?v=YNyX91X0lPs",
+        "thumbnail_url": "https://i2.ytimg.com/vi/YNyX91X0lPs/hqdefault.jpg",
+        "published_at": "2026-05-29T13:00:05+00:00",
+        "duration_seconds": null,
+        "view_count": 11731
+      }
+    },
+    {
+      "rank": 5,
+      "score": 3.549,
+      "reason": "Fits the current watchlist filters.",
+      "matched_interests": [],
+      "video": {
+        "id": "o-akdcwQzHo",
+        "channel_id": "UCpVm7bg6pXKo1Pr6k5kxG9A",
+        "channel_title": "National Geographic",
+        "title": "Keeping a Mole Alive (Full Episode) | Inside the CIA: Secrets & Spies | National Geographic",
+        "description": "Who is CIA Officer Patrick Weninger? During one of the most tense periods of conflict in history in the Middle East, he faces the ultimate test of trust. Recruiting a mole inside al-Qaida is only the beginning; the real challenge is keeping him alive. Intelligence alone won\u2019t win the battle. The true test lies in safeguarding the life of a man who holds the key to countless operations. As danger closes in from every direction, loyalty, strategy and courage collide in a fight for survival in this full episode of Inside the CIA from National Geographic.\n\nInside the CIA: Secrets and Spies | S1 E2\n\nWatch More Inside the CIA: Secrets & Spies here on Disney+: https://go.natgeo.blink.app/d40ef1\n\nExplore the World with National Geographic subscriptions: https://natgeo.com/ytngmagazine\n\n\u27a1 Subscribe: https://on.natgeo.com/4p5A0D6\n\u27a1 Get more Nat Geo Full Episodes: https://on.natgeo.com/3V5ZfHI\n\u27a1 Get wild with Nat Geo Animals Full Episodes: https://on.natgeo.com/3V2EOLO\n\nAnd check out more National Geographic series and specials here:\n\u27a1 Disney Plus: https://on.natgeo.com/3q6on5p\n\u27a1 Hulu: https://on.natgeo.com/3Qor0Ko\n\u27a1 NGTV: https://natgeo.com/tv\n\u27a1 ABC: https://abc.com\n\n#NationalGeographic #InsideTheCIA #FullEpisode\n\nAbout National Geographic:\nNational Geographic is the world's premium destination for critically acclaimed storytelling around science and exploration. Discover amazing wildlife, ancient civilizations, hidden worlds, and the incredible wonders of our Earth. Through world-class scientists, photographers, journalists, and filmmakers, Nat Geo inspires fans of all ages to connect with, explore, and care about the world.\n\nGet More National Geographic:\nOfficial Site: https://nationalgeographic.com\nInstagram: https://instagram.com/natgeo \nFacebook: https://facebook.com/natgeo\nThreads: https://threads.com/@natgeo\nX: https://x.com/NatGeo\nLinkedIn: https://linkedin.com/company/national-geographic\nTikTok: https://tiktok.com/@natgeo\nReddit: https://reddit.com/user/nationalgeographic\nPinterest: https://pinterest.com/natgeo\n\nMeet Patrick Weninger (Full Episode) | Inside the CIA: Secrets and Spies | National Geographic\nhttps://youtu.be/o-akdcwQzHo\n\nNational Geographic\nyoutube.com/natgeo",
+        "url": "https://www.youtube.com/watch?v=o-akdcwQzHo",
+        "thumbnail_url": "https://i4.ytimg.com/vi/o-akdcwQzHo/hqdefault.jpg",
+        "published_at": "2026-05-28T13:00:18+00:00",
+        "duration_seconds": null,
+        "view_count": 16732
+      }
+    },
+    {
+      "rank": 6,
+      "score": 3.513,
+      "reason": "Published yesterday.",
+      "matched_interests": [],
+      "video": {
+        "id": "xyyvs6vn1qw",
+        "channel_id": "UCW71hQg1kDxmFIfijA8dL0Q",
+        "channel_title": "Unsolicited advice",
+        "title": "Embarrassing Mistakes, Smartest Philosophers, and Why I Hate Irony | 900k QnA",
+        "description": "Thank you so much for 900 thousand subscribers! I am so grateful and I look forward to answering your questions!\n\nSupport me on Patreon here (you lovely person): https://patreon.com/UnsolicitedAdvice701?utm_medium=clipboard_copy&utm_source=copyLink&utm_campaign=creatorshare_creator&utm_content=join_link\n\nSubscribe to my Substack here for more of my writings: https://josephfolley.substack.com/\n\n00:00 How am I?\n05:58 What would I do if not philosophy?\n09:45 What are my non-philosophical hobbies?\n12:18 What do I want to be when I grow up?\n15:12 Why is emotional sincerity cringe?\n23:13 What defines philosophical literature?\n29:46 Where am I in the consciousness discussion?\n39:34 Favourite author style-wise\n42:27 How to not take disagreement personally\n47:22 do I journal?\n50:33 Which philosopher would I bring to the modern day?\n56:47 Did I like philosophy as a kid?\n1:01:38 Who is the smartest philosopher of all time?\n1:06:37 What do you think about Byung-Chul Han?\n1:11:17 Will I do videos about logic?\n1:17:04 What have I changed my mind on since starting the channel?\n1:22:43 What makes me angry?\n1:26:55 Should philosophers have beards?\n\nHere is a Frank Ramsey paper: https://www.fitelson.org/probability/ramsey.pdf",
+        "url": "https://www.youtube.com/watch?v=xyyvs6vn1qw",
+        "thumbnail_url": "https://i1.ytimg.com/vi/xyyvs6vn1qw/hqdefault.jpg",
+        "published_at": "2026-05-29T16:30:18+00:00",
+        "duration_seconds": null,
+        "view_count": 4209
+      }
+    },
+    {
+      "rank": 7,
+      "score": 3.424,
+      "reason": "Fits the current watchlist filters.",
+      "matched_interests": [],
+      "video": {
+        "id": "E68VQpR2GY8",
+        "channel_id": "UC-tLyAaPbRZiYrOJxAGB7dQ",
+        "channel_title": "Pursuit of Wonder",
+        "title": "What You Would See During Civilization Collapse",
+        "description": "Get NordVPN 2Y plan + 4 months extra at https://nordvpn.com/pursuitofwonder. It\u2019s risk-free with Nord\u2019s 30-day money-back guarantee.\n\nIn this video, we explore one of the strangest and most unsettling scientific experiments in history: Universe 25. What happens when a species is given everything they need and want? What happens when there is no friction in the world, and the world becomes utopian? Universe 25 reveals counterintuitive answers to these questions that are as disturbing as they are fascinating. In a modern world increasingly fraught with noise, stimulation, comparison, and access to everything at all times, Universe 25 is eerily relevant.\n\nGet my new book, The Terrible Paradox of Self-Awareness: https://www.amazon.com/Terrible-Paradox-Self-Awareness-Awareness-Beginning/dp/B0FCDCCNJR/ref=tmm_pap_swatch_0\nOther retailers available here (listed under Paperback and eBook): https://publishing.andrewsmcmeel.com/book/the-terrible-paradox-of-self-awareness/\n\nCheck out all Pursuit of Wonder books here: https://www.amazon.com/stores/Robert-Pantano/author/B08DCRJ85C?ref=ap_rdr&store_ref=ap_rdr&isDramIntegrated=true&shoppingPortalEnabled=true\n(Also available to more international locations here: https://pursuitofwonder.com/store)\n\nFree Pursuit of Wonder Newsletter: https://pursuitofwonder.ck.page/newsletter\nInstagram: https://www.instagram.com/pursuitofwonder\nFacebook: https://www.facebook.com/PursuitOfWonder\n\nIf you are interested in further supporting the channel, \nyou can contribute to our Patreon here: https://www.patreon.com/pursuitofwonder\nSpecial thank you to our very generous Patreon supporters: \nLong Hoang\nJoseph Geipel\nAxel Alcazar\nDavid Piadozo\nJacquelineLS\nZake Jajac\nAlan Stein\nChristian Villanueva\nGeorge Leontowicz",
+        "url": "https://www.youtube.com/watch?v=E68VQpR2GY8",
+        "thumbnail_url": "https://i2.ytimg.com/vi/E68VQpR2GY8/hqdefault.jpg",
+        "published_at": "2026-05-27T16:04:13+00:00",
+        "duration_seconds": null,
+        "view_count": 44749
+      }
+    },
+    {
+      "rank": 8,
+      "score": 3.281,
+      "reason": "Fits the current watchlist filters.",
+      "matched_interests": [],
+      "video": {
+        "id": "vk0Iy8-SHw4",
+        "channel_id": "UC7kIy8fZavEni8Gzl8NLjOQ",
+        "channel_title": "Alex O'Connor",
+        "title": "The Heretics Who Got Too Close to God - What is Mysticism?",
+        "description": "Get Huel today with this exclusive offer for New Customers of 15% OFF with code alexoconnor at https://huel.com/alexoconnor (Minimum $50 purchase).\n\nFor early, ad-free access to videos, and to support the channel, subscribe to my Substack: https://www.alexoconnor.com.\n\nTo donate to my PayPal (thank you): http://www.paypal.me/cosmicskeptic\n\n - VIDEO NOTES\n\nSimon Critchley is a British philosopher, author and professor at The New School in New York. He is best known for his work on existentialism, mysticism, ethics and continental philosophy, and is the author of books including The Book of Dead Philosophers, Faith of the Faithless and Mysticism.\n\n - LINKS\n\nGet Simon's book, \"Mysticism\": https://amzn.to/4uzstPa\n\n - TIMESTAMPS\n\n0:00 - Is Mysticism Always Religious?\n7:52 - What is Mysticism?\n18:58 - Unification With the Divine\n29:58 - Mysticism and the Self\n40:38 - Why Are So Many Mystics Women?\n48:41 - The Limits of Language\n59:54 - Was Pascal a Mystic?\n01:03:21 - Where Does Simon Stand on Mysticism?\n01:11:22 - Where Should We Start With Learning About Mysticism?\n01:15:36 - Imagery in Simon\u2019s Book\n\n - CONNECT\n\nMy Website: https://www.alexoconnor.com\n\nSOCIAL LINKS:\n\nTwitter: http://www.twitter.com/cosmicskeptic\nFacebook: http://www.facebook.com/cosmicskeptic\nInstagram: http://www.instagram.com/cosmicskeptic\nTikTok: @CosmicSkeptic\n\nThe Within Reason Podcast: https://podcasts.apple.com/gb/podcast/within-reason/id1458675168\n\n - CONTACT\n\nBusiness email: contact@alexoconnor.com\n\nBrand enquiries: David@modernstoa.co\n\n------------------------------------------",
+        "url": "https://www.youtube.com/watch?v=vk0Iy8-SHw4",
+        "thumbnail_url": "https://i3.ytimg.com/vi/vk0Iy8-SHw4/hqdefault.jpg",
+        "published_at": "2026-05-26T15:57:53+00:00",
+        "duration_seconds": null,
+        "view_count": 69555
+      }
+    },
+    {
+      "rank": 9,
+      "score": 2.875,
+      "reason": "Fits the current watchlist filters.",
+      "matched_interests": [],
+      "video": {
+        "id": "OEBTtMjm_4U",
+        "channel_id": "UC7kIy8fZavEni8Gzl8NLjOQ",
+        "channel_title": "Alex O'Connor",
+        "title": "William Lane Craig vs Alex O'Connor: God and Suffering",
+        "description": "For early, ad-free access to videos, and to support the channel, subscribe to my Substack: https://www.alexoconnor.com.\n\nTo donate to my PayPal (thank you): http://www.paypal.me/cosmicskeptic.\n\n - VIDEO NOTES\n\nThis event took place on the 5th of May 2026 at the Royal Institution. William Lane Craig and Alex discuss the kalam cosmological argument, whether the universe had a beginning, Hilbert's Hotel, and the problem of animal suffering.\n\n - CONNECT\n\nMy Website: https://www.alexoconnor.com\n\n - SOCIAL LINKS:\n\nTwitter: http://www.twitter.com/cosmicskeptic\nFacebook: http://www.facebook.com/cosmicskeptic\nInstagram: http://www.instagram.com/cosmicskeptic\nTikTok: @CosmicSkeptic\n\nThe Within Reason Podcast: https://podcasts.apple.com/gb/podcast/within-reason/id1458675168\n\n - CONTACT\n\nBusiness email: contact@alexoconnor.com\n\nBrand enquiries: David@modernstoa.co\n\n------------------------------------------",
+        "url": "https://www.youtube.com/watch?v=OEBTtMjm_4U",
+        "thumbnail_url": "https://i4.ytimg.com/vi/OEBTtMjm_4U/hqdefault.jpg",
+        "published_at": "2026-05-21T17:24:31+00:00",
+        "duration_seconds": null,
+        "view_count": 303050
+      }
+    },
+    {
+      "rank": 10,
+      "score": 2.71,
+      "reason": "Fits the current watchlist filters.",
+      "matched_interests": [],
+      "video": {
+        "id": "zewSCygGaFs",
+        "channel_id": "UCW71hQg1kDxmFIfijA8dL0Q",
+        "channel_title": "Unsolicited advice",
+        "title": "9 novels that are better than any self-help book",
+        "description": "Head to https://squarespace.com/unsolicitedadvice to save 10% off your first purchase of a website or domain using code UNSOLICITEDADVICE\n\nI have often said that I think reading good fiction and novels can improve your life, as much if not more than books written with that purpose in mind. So here is a list of phenomenal works of fiction to get you started, each of which I am confident will improve your life more than any self-help book out there.\n\nSupport me on Patreon here (you lovely person): https://patreon.com/UnsolicitedAdvice701?utm_medium=clipboard_copy&utm_source=copyLink&utm_campaign=creatorshare_creator&utm_content=join_link\n\nSubscribe to my Substack here for more of my writings: https://josephfolley.substack.com/\n\nHere is a good production of Othello (I can't find the one I had in mind but it has Ian McKellen in so chances are it is fantastic): https://youtu.be/oX0cbcrMAdo?si=2aPO4BsUsK0lB6_n\n\n00:00 A Hopeful Apocalypse\n05:56 An Envious Tragedy\n10:18 An Existential Affliction\n16:03 Some Fabulous Fables\n20:34 Some Satanic Scribbles\n25:50 A Pessimistic Psychology\n31:31 Some Ancient Epics\n36:12 A Fraught Romance\n39:13 A Religious Experience",
+        "url": "https://www.youtube.com/watch?v=zewSCygGaFs",
+        "thumbnail_url": "https://i3.ytimg.com/vi/zewSCygGaFs/hqdefault.jpg",
+        "published_at": "2026-05-22T16:01:27+00:00",
+        "duration_seconds": null,
+        "view_count": 60812
+      }
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "date": "2026-05-29",
+  "generated_at": "2026-05-29T17:21:00.888185+00:00",
+  "title": "Daily Watchlist",
+  "items": [
+    {
+      "rank": 1,
+      "score": 11.029,
+      "reason": "Matches backend systems, personal finance; published yesterday; about 18 min.",
+      "matched_interests": [
+        "backend systems",
+        "personal finance"
+      ],
+      "video": {
+        "id": "demo-finance",
+        "channel_id": "demo-channel-3",
+        "channel_title": "Long Term Money",
+        "title": "Simple personal finance systems that reduce decisions",
+        "description": "Budget automation, investment checklists, and low-maintenance personal finance routines.",
+        "url": "https://www.youtube.com/watch?v=demo-finance",
+        "thumbnail_url": "https://i.ytimg.com/vi/demo-finance/hqdefault.jpg",
+        "published_at": "2026-05-28T00:00:00+00:00",
+        "duration_seconds": 1080,
+        "view_count": 76000
+      }
+    },
+    {
+      "rank": 2,
+      "score": 10.514,
+      "reason": "Matches practical ai engineering, backend systems; published today; about 34 min.",
+      "matched_interests": [
+        "practical AI engineering",
+        "backend systems"
+      ],
+      "video": {
+        "id": "demo-ai-systems",
+        "channel_id": "demo-channel-0",
+        "channel_title": "Practical AI Systems",
+        "title": "Building reliable AI agents with Python queues and evals",
+        "description": "A grounded walkthrough of agent orchestration, task queues, state, and simple evaluations.",
+        "url": "https://www.youtube.com/watch?v=demo-ai-systems",
+        "thumbnail_url": "https://i.ytimg.com/vi/demo-ai-systems/hqdefault.jpg",
+        "published_at": "2026-05-29T00:00:00+00:00",
+        "duration_seconds": 2040,
+        "view_count": 184000
+      }
+    },
+    {
+      "rank": 3,
+      "score": 8.519,
+      "reason": "Matches practical ai engineering, backend systems; published yesterday; about 22 min.",
+      "matched_interests": [
+        "practical AI engineering",
+        "backend systems",
+        "personal finance"
+      ],
+      "video": {
+        "id": "demo-backend",
+        "channel_id": "demo-channel-1",
+        "channel_title": "Backend Notes",
+        "title": "SQLite is enough for more apps than you think",
+        "description": "A practical tour through SQLite patterns for personal tools, cron jobs, and small web apps.",
+        "url": "https://www.youtube.com/watch?v=demo-backend",
+        "thumbnail_url": "https://i.ytimg.com/vi/demo-backend/hqdefault.jpg",
+        "published_at": "2026-05-28T16:00:00+00:00",
+        "duration_seconds": 1320,
+        "view_count": 96000
+      }
+    },
+    {
+      "rank": 4,
+      "score": 6.933,
+      "reason": "Matches practical ai engineering; about 26 min.",
+      "matched_interests": [
+        "practical AI engineering"
+      ],
+      "video": {
+        "id": "demo-india-tech",
+        "channel_id": "demo-channel-4",
+        "channel_title": "India Tech Brief",
+        "title": "What is changing in India's developer tooling market",
+        "description": "A concise look at engineering teams, AI adoption, infrastructure, and product opportunities.",
+        "url": "https://www.youtube.com/watch?v=demo-india-tech",
+        "thumbnail_url": "https://i.ytimg.com/vi/demo-india-tech/hqdefault.jpg",
+        "published_at": "2026-05-27T16:00:00+00:00",
+        "duration_seconds": 1560,
+        "view_count": 52000
+      }
+    },
+    {
+      "rank": 5,
+      "score": 6.224,
+      "reason": "Matches fitness and health; published yesterday; about 28 min.",
+      "matched_interests": [
+        "fitness and health"
+      ],
+      "video": {
+        "id": "demo-fitness",
+        "channel_id": "demo-channel-2",
+        "channel_title": "Training Log",
+        "title": "How to build a sustainable strength routine",
+        "description": "Programming basics, recovery, progressive overload, and avoiding noisy fitness advice.",
+        "url": "https://www.youtube.com/watch?v=demo-fitness",
+        "thumbnail_url": "https://i.ytimg.com/vi/demo-fitness/hqdefault.jpg",
+        "published_at": "2026-05-28T08:00:00+00:00",
+        "duration_seconds": 1680,
+        "view_count": 121000
+      }
+    }
+  ]
+}
