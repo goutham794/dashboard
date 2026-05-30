@@ -91,10 +91,19 @@ uv run python -m unittest discover -s tests
 
 ### Publish with GitHub Pages
 
-The workflow in `.github/workflows/pages.yml` deploys the generated `site/`
-directory when `main` is pushed or when the workflow is run manually. GitHub
-Pages sites are publicly accessible, so review the generated HTML and JSON
-before publishing.
+The workflow in `.github/workflows/pages.yml` fetches the configured RSS feeds,
+generates a new page, and deploys the `site/` directory every day at 06:15
+Asia/Kolkata. It also runs when `main` is pushed or when the workflow is started
+manually. GitHub Pages sites are publicly accessible, so review the generated
+HTML and JSON before publishing.
+
+The workflow stores `data/` and `site/daily/` in the GitHub Actions cache so the
+ranking history and archive pages survive between hosted runner jobs. This is
+appropriate for the MVP, but it is best-effort storage: GitHub may evict caches
+that have not been accessed for more than seven days. Use durable external
+storage before relying on the dashboard for long-lived feedback data. GitHub
+also disables scheduled workflows in public repositories after 60 days without
+repository activity; re-enable the workflow or push a change if that happens.
 
 Create an empty GitHub repository, then push this project:
 
@@ -109,8 +118,8 @@ git push -u origin main
 In the GitHub repository, open **Settings > Pages** and select **GitHub
 Actions** as the source under **Build and deployment**.
 
-To publish a refreshed daily snapshot, generate the page locally and push the
-updated static files:
+The scheduled workflow publishes refreshed daily snapshots automatically. To
+publish a local snapshot immediately:
 
 ```bash
 uv run python -m dashboard.youtube_curator run
