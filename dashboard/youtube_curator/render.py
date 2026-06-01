@@ -96,17 +96,17 @@ def _html_page(
   <title>{escape(config.output.page_title)}</title>
   <style>
     :root {{
-      color-scheme: light;
-      --bg: #f6f7f9;
-      --surface: #ffffff;
-      --surface-strong: #eef4f1;
-      --text: #172026;
-      --muted: #5f6b75;
-      --line: #d8dee5;
-      --accent: #0f6b57;
-      --accent-strong: #0b4f41;
-      --warn: #9a4b15;
-      --shadow: 0 18px 45px rgba(23, 32, 38, 0.08);
+      color-scheme: dark;
+      --bg: #0f1115;
+      --surface: #171b20;
+      --surface-strong: #202821;
+      --text: #f2f5f3;
+      --muted: #a3ada8;
+      --line: #303735;
+      --accent: #6ad7ad;
+      --accent-strong: #0e7a5c;
+      --warn: #f0a45d;
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.32);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }}
 
@@ -374,14 +374,14 @@ def _html_page(
     }}
 
     .action-button {{
-      background: #ffffff;
+      background: #11161c;
       color: var(--text);
     }}
 
     .action-button[data-active="true"] {{
       background: var(--surface-strong);
-      border-color: #9ab8ae;
-      color: var(--accent-strong);
+      border-color: rgba(106, 215, 173, 0.58);
+      color: var(--accent);
     }}
 
     .empty-state {{
@@ -545,8 +545,7 @@ def _video_item(rank: int, item: RankedVideo) -> str:
             <p class="reason">{escape(item.reason)}</p>
           </div>
           <div class="actions">
-            <button class="watch-link" type="button" data-embed-url="{escape(embed_url, quote=True)}" data-embed-title="{escape(video.title, quote=True)}">Play here</button>
-            <a class="action-button" href="{escape(video.url, quote=True)}" target="_blank" rel="noreferrer">Open YouTube</a>
+            <button class="watch-link" type="button" data-embed-url="{escape(embed_url, quote=True)}" data-embed-title="{escape(video.title, quote=True)}">Play</button>
             <button class="action-button" type="button" data-video-id="{escape(video.video_id, quote=True)}" data-action="watched">Watched</button>
             <button class="action-button" type="button" data-video-id="{escape(video.video_id, quote=True)}" data-action="saved">Save</button>
             <button class="action-button" type="button" data-video-id="{escape(video.video_id, quote=True)}" data-action="less_like_this">Less like this</button>
