@@ -47,6 +47,8 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "max_duration_seconds": 5400,
         "max_per_channel": 2,
         "exclude_previously_recommended": True,
+        "discovery_enabled": True,
+        "discovery_results_per_interest": 10,
     },
     "storage": {
         "database_path": "data/youtube_curator.sqlite3",
@@ -98,6 +100,10 @@ def parse_config(raw: dict[str, Any]) -> AppConfig:
             max_per_channel=int(youtube_raw.get("max_per_channel", 2)),
             exclude_previously_recommended=bool(
                 youtube_raw.get("exclude_previously_recommended", True)
+            ),
+            discovery_enabled=bool(youtube_raw.get("discovery_enabled", True)),
+            discovery_results_per_interest=int(
+                youtube_raw.get("discovery_results_per_interest", 10)
             ),
         ),
         storage=StorageSettings(database_path=str(storage_raw.get("database_path"))),

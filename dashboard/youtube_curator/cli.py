@@ -11,8 +11,8 @@ from pathlib import Path
 from .channel_resolver import add_channels_to_config, collect_sources, resolve_channels
 from .config import DEFAULT_CONFIG, load_config, parse_config, write_default_config
 from .db import Database
-from .fetch import fetch_all_channels
-from .models import AppConfig, Video
+from .fetch import fetch_all_channels, fetch_interest_discovery_videos
+from .models import AppConfig, RankedVideo, Video
 from .rank import rank_videos
 from .render import render_daily_page
 
@@ -122,6 +122,8 @@ def _run(config: AppConfig, target_date: date, *, skip_fetch: bool) -> None:
             print(f"Fetch warning: {error}")
 
     recommendations = _recommend_from_db(database, config, target_date)
+    if not skip_fetch:
+        recommendations = _top_up_with_discovery(database, config, target_date, recommendations)
     html_path, json_path = render_daily_page(config, target_date, recommendations)
     database.replace_recommendations(target_date, recommendations)
 
@@ -228,6 +230,75 @@ def _recommend_from_db(
         target_date,
         previously_recommended=previous,
     )
+
+
+def _top_up_with_discovery(
+    database: Database,
+    config: AppConfig,
+    target_date: date,
+    recommendations: list[RankedVideo],
+) -> list[RankedVideo]:
+    target_count = config.youtube.max_videos_per_day
+    if target_count <= 0 or len(recommendations) >= target_count:
+        return recommendations
+    if not config.youtube.discovery_enabled:
+        return recommendations
+
+    interests = config.profile.interests or config.profile.preferred_terms
+    if not interests:
+        return recommendations
+
+    previously_recommended = database.recommended_video_ids_before(target_date)
+    selected_video_ids = {item.video.video_id for item in recommendations}
+    configured_channel_ids = {channel.id for channel in config.channels if channel.id}
+    needed = target_count - len(recommendations)
+    results_per_interest = max(config.youtube.discovery_results_per_interest, target_count)
+    max_results = max(target_count * 4, needed * 4)
+
+    discovery_videos, errors = fetch_interest_discovery_videos(
+        interests,
+        max_results=max_results,
+        results_per_interest=results_per_interest,
+        exclude_channel_ids=configured_channel_ids,
+        exclude_video_ids=previously_recommended | selected_video_ids,
+    )
+    for error in errors:
+        print(f"Discovery warning: {error}")
+
+    inserted = database.upsert_videos(discovery_videos)
+    if discovery_videos:
+        print(
+            f"Fetched {len(discovery_videos)} discovery candidates and upserted {inserted} rows."
+        )
+
+    discovery_ranked = rank_videos(
+        discovery_videos,
+        config,
+        target_date,
+        previously_recommended=previously_recommended | selected_video_ids,
+        allow_outside_lookback_video_ids={video.video_id for video in discovery_videos},
+    )
+    filled = _append_recommendations(recommendations, discovery_ranked, target_count)
+    if len(filled) < target_count:
+        print(f"Discovery filled {len(filled) - len(recommendations)} of {needed} open slots.")
+    return filled
+
+
+def _append_recommendations(
+    recommendations: list[RankedVideo],
+    candidates: list[RankedVideo],
+    target_count: int,
+) -> list[RankedVideo]:
+    filled = list(recommendations)
+    selected_video_ids = {item.video.video_id for item in filled}
+    for candidate in candidates:
+        if len(filled) >= target_count:
+            break
+        if candidate.video.video_id in selected_video_ids:
+            continue
+        filled.append(candidate)
+        selected_video_ids.add(candidate.video.video_id)
+    return filled
 
 
 def _load_or_create_config(path: Path) -> AppConfig:

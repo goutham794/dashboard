@@ -15,7 +15,7 @@ from dashboard.youtube_curator.channel_resolver import (
 )
 from dashboard.youtube_curator.config import DEFAULT_CONFIG, parse_config
 from dashboard.youtube_curator.db import Database
-from dashboard.youtube_curator.fetch import parse_youtube_feed
+from dashboard.youtube_curator.fetch import parse_youtube_feed, parse_youtube_search_results
 from dashboard.youtube_curator.models import Video
 from dashboard.youtube_curator.rank import rank_videos
 from dashboard.youtube_curator.render import render_daily_page
@@ -57,6 +57,65 @@ SAMPLE_CHANNEL_PAGE = """
   <body>
     {"channelMetadataRenderer":{"title":"Unsolicited Advice","externalId":"UC1234567890123456789012"}}
   </body>
+</html>
+"""
+
+SAMPLE_SEARCH_HTML = """
+<html>
+  <script>
+    var ytInitialData = {
+      "contents": {
+        "twoColumnSearchResultsRenderer": {
+          "primaryContents": {
+            "sectionListRenderer": {
+              "contents": [
+                {
+                  "itemSectionRenderer": {
+                    "contents": [
+                      {
+                        "videoRenderer": {
+                          "videoId": "discover123",
+                          "title": {
+                            "runs": [
+                              {"text": "Practical AI engineering patterns"}
+                            ]
+                          },
+                          "ownerText": {
+                            "runs": [
+                              {
+                                "text": "New Systems Creator",
+                                "navigationEndpoint": {
+                                  "browseEndpoint": {"browseId": "UC_discovery"}
+                                }
+                              }
+                            ]
+                          },
+                          "publishedTimeText": {"simpleText": "3 weeks ago"},
+                          "lengthText": {"simpleText": "18:42"},
+                          "viewCountText": {"simpleText": "12K views"},
+                          "thumbnail": {
+                            "thumbnails": [
+                              {"url": "https://example.test/small.jpg"},
+                              {"url": "https://example.test/large.jpg"}
+                            ]
+                          },
+                          "descriptionSnippet": {
+                            "runs": [
+                              {"text": "Agents, evals, and backend systems."}
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    };
+  </script>
 </html>
 """
 
@@ -115,6 +174,18 @@ class YouTubeCuratorTests(unittest.TestCase):
         self.assertEqual(videos[0].channel_title, "Useful Systems")
         self.assertEqual(videos[0].view_count, 12000)
 
+    def test_parse_youtube_search_results(self) -> None:
+        fetched_at = datetime(2026, 5, 29, 12, 0, tzinfo=timezone.utc)
+        videos = parse_youtube_search_results(SAMPLE_SEARCH_HTML, fetched_at=fetched_at)
+        self.assertEqual(len(videos), 1)
+        self.assertEqual(videos[0].video_id, "discover123")
+        self.assertEqual(videos[0].channel_id, "UC_discovery")
+        self.assertEqual(videos[0].channel_title, "New Systems Creator")
+        self.assertEqual(videos[0].duration_seconds, 1122)
+        self.assertEqual(videos[0].view_count, 12000)
+        self.assertEqual(videos[0].published_at, datetime(2026, 5, 8, 12, 0, tzinfo=timezone.utc))
+        self.assertEqual(videos[0].thumbnail_url, "https://example.test/large.jpg")
+
     def test_rank_filters_blocked_terms_and_picks_relevant_video(self) -> None:
         config = parse_config(
             {
@@ -159,6 +230,40 @@ class YouTubeCuratorTests(unittest.TestCase):
 
         ranked = rank_videos(videos, config, date(2026, 5, 29))
         self.assertEqual([item.video.video_id for item in ranked], ["good"])
+
+    def test_rank_can_relax_lookback_for_discovery_backfill(self) -> None:
+        config = parse_config(
+            {
+                **DEFAULT_CONFIG,
+                "profile": {"interests": ["AI engineering"]},
+                "youtube": {
+                    **DEFAULT_CONFIG["youtube"],
+                    "lookback_days": 7,
+                    "min_duration_seconds": 60,
+                },
+            }
+        )
+        old_discovery = Video(
+            video_id="old-discovery",
+            channel_id="UC_discovery",
+            channel_title="New Creator",
+            title="AI engineering systems",
+            description="Practical agents and backend evals.",
+            url="https://www.youtube.com/watch?v=old-discovery",
+            thumbnail_url="",
+            published_at=datetime(2026, 4, 1, tzinfo=timezone.utc),
+            duration_seconds=1200,
+            view_count=10000,
+        )
+
+        self.assertEqual(rank_videos([old_discovery], config, date(2026, 5, 29)), [])
+        ranked = rank_videos(
+            [old_discovery],
+            config,
+            date(2026, 5, 29),
+            allow_outside_lookback_video_ids={"old-discovery"},
+        )
+        self.assertEqual([item.video.video_id for item in ranked], ["old-discovery"])
 
     def test_database_and_render_outputs(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

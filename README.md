@@ -78,6 +78,13 @@ window, and previously recommended videos. Duration filtering is applied when
 duration data is available; RSS feeds usually do not include duration, so the
 next useful upgrade is YouTube Data API enrichment.
 
+If the ranked channel videos do not fill `max_videos_per_day`, the curator can
+top up the watchlist with YouTube search results for your configured interests.
+This is enabled by default with `youtube.discovery_enabled` and skips configured
+channel IDs so the extra slots favor new creators. Tune
+`youtube.discovery_results_per_interest` to control how many search candidates
+are considered for each interest.
+
 ### Useful commands
 
 ```bash

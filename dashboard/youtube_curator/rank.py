@@ -51,14 +51,16 @@ def rank_videos(
     recommendation_date: date,
     *,
     previously_recommended: set[str] | None = None,
+    allow_outside_lookback_video_ids: set[str] | None = None,
 ) -> list[RankedVideo]:
     previous = previously_recommended or set()
+    relaxed_lookback_ids = allow_outside_lookback_video_ids or set()
     channel_map = {channel.id: channel for channel in config.channels if channel.id}
     target_dt = datetime.combine(recommendation_date, time.max, tzinfo=timezone.utc)
 
     ranked: list[RankedVideo] = []
     for video in videos:
-        if not _candidate_allowed(video, config, target_dt, previous):
+        if not _candidate_allowed(video, config, target_dt, previous, relaxed_lookback_ids):
             continue
         channel = channel_map.get(video.channel_id, ChannelConfig(id=video.channel_id))
         score, matched_interests = _score_video(video, channel, config, target_dt)
@@ -81,6 +83,7 @@ def _candidate_allowed(
     config: AppConfig,
     target_dt: datetime,
     previously_recommended: set[str],
+    allow_outside_lookback_video_ids: set[str],
 ) -> bool:
     text = _combined_text(video)
     if config.youtube.exclude_previously_recommended and video.video_id in previously_recommended:
@@ -89,7 +92,10 @@ def _candidate_allowed(
         return False
 
     age_days = (target_dt - video.published_at).total_seconds() / 86400
-    if age_days > config.youtube.lookback_days:
+    if (
+        age_days > config.youtube.lookback_days
+        and video.video_id not in allow_outside_lookback_video_ids
+    ):
         return False
     if age_days < -2:
         return False

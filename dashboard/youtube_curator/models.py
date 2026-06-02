@@ -22,6 +22,8 @@ class YouTubeSettings:
     max_duration_seconds: int | None = 5400
     max_per_channel: int = 2
     exclude_previously_recommended: bool = True
+    discovery_enabled: bool = True
+    discovery_results_per_interest: int = 10
 
 
 @dataclass(slots=True)

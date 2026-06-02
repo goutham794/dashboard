@@ -29,7 +29,9 @@
     "min_duration_seconds": 300,
     "max_duration_seconds": 5400,
     "max_per_channel": 2,
-    "exclude_previously_recommended": true
+    "exclude_previously_recommended": true,
+    "discovery_enabled": true,
+    "discovery_results_per_interest": 10
   },
   "storage": {
     "database_path": "data/youtube_curator.sqlite3"
