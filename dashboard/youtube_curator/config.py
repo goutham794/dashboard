@@ -46,7 +46,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "min_duration_seconds": 300,
         "max_duration_seconds": 5400,
         "max_per_channel": 2,
-        "exclude_previously_recommended": True,
+        "exclude_watched": True,
         "discovery_enabled": True,
         "discovery_results_per_interest": 10,
     },
@@ -98,8 +98,11 @@ def parse_config(raw: dict[str, Any]) -> AppConfig:
             min_duration_seconds=_optional_int(youtube_raw.get("min_duration_seconds")),
             max_duration_seconds=_optional_int(youtube_raw.get("max_duration_seconds")),
             max_per_channel=int(youtube_raw.get("max_per_channel", 2)),
-            exclude_previously_recommended=bool(
-                youtube_raw.get("exclude_previously_recommended", True)
+            exclude_watched=bool(
+                youtube_raw.get(
+                    "exclude_watched",
+                    youtube_raw.get("exclude_previously_recommended", True),
+                )
             ),
             discovery_enabled=bool(youtube_raw.get("discovery_enabled", True)),
             discovery_results_per_interest=int(

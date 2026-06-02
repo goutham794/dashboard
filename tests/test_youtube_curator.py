@@ -13,6 +13,7 @@ from dashboard.youtube_curator.channel_resolver import (
     extract_channel_id_from_page,
     extract_channel_title_from_page,
 )
+from dashboard.youtube_curator.cli import _recommend_from_db
 from dashboard.youtube_curator.config import DEFAULT_CONFIG, parse_config
 from dashboard.youtube_curator.db import Database
 from dashboard.youtube_curator.fetch import parse_youtube_feed, parse_youtube_search_results
@@ -265,6 +266,50 @@ class YouTubeCuratorTests(unittest.TestCase):
         )
         self.assertEqual([item.video.video_id for item in ranked], ["old-discovery"])
 
+    def test_prior_recommendation_repeats_until_marked_watched(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config = parse_config(
+                {
+                    **DEFAULT_CONFIG,
+                    "storage": {"database_path": str(Path(temp_dir) / "curator.sqlite3")},
+                    "youtube": {
+                        **DEFAULT_CONFIG["youtube"],
+                        "max_videos_per_day": 5,
+                        "min_duration_seconds": 60,
+                    },
+                }
+            )
+            video = Video(
+                video_id="repeat",
+                channel_id="UC1",
+                channel_title="Systems",
+                title="Backend systems with Python",
+                description="Practical engineering.",
+                url="https://www.youtube.com/watch?v=repeat",
+                thumbnail_url="",
+                published_at=datetime(2026, 5, 28, tzinfo=timezone.utc),
+                duration_seconds=900,
+                view_count=1234,
+            )
+            database = Database(config.storage.database_path)
+            database.init()
+            database.upsert_videos([video])
+
+            first = _recommend_from_db(database, config, date(2026, 5, 29))
+            database.replace_recommendations(date(2026, 5, 29), first)
+            second = _recommend_from_db(database, config, date(2026, 5, 30))
+            self.assertEqual([item.video.video_id for item in second], ["repeat"])
+
+            database.set_feedback("repeat", "watched", active=True)
+            self.assertEqual(database.feedback_video_ids({"watched"}), {"repeat"})
+            third = _recommend_from_db(database, config, date(2026, 5, 31))
+            self.assertEqual(third, [])
+
+            database.set_feedback("repeat", "watched", active=False)
+            self.assertEqual(database.feedback_video_ids({"watched"}), set())
+            fourth = _recommend_from_db(database, config, date(2026, 6, 1))
+            self.assertEqual([item.video.video_id for item in fourth], ["repeat"])
+
     def test_database_and_render_outputs(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             config = parse_config(
@@ -307,6 +352,8 @@ class YouTubeCuratorTests(unittest.TestCase):
             self.assertNotIn("Open YouTube", html)
             self.assertIn('document.createElement("iframe")', html)
             self.assertIn('searchParams.set("origin"', html)
+            self.assertIn('fetch("/api/feedback"', html)
+            self.assertIn(">Seen</button>", html)
             self.assertIn("Embedded playback needs a local server", html)
 
 

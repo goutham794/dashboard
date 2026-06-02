@@ -50,17 +50,17 @@ def rank_videos(
     config: AppConfig,
     recommendation_date: date,
     *,
-    previously_recommended: set[str] | None = None,
+    excluded_video_ids: set[str] | None = None,
     allow_outside_lookback_video_ids: set[str] | None = None,
 ) -> list[RankedVideo]:
-    previous = previously_recommended or set()
+    excluded_ids = set(excluded_video_ids or set())
     relaxed_lookback_ids = allow_outside_lookback_video_ids or set()
     channel_map = {channel.id: channel for channel in config.channels if channel.id}
     target_dt = datetime.combine(recommendation_date, time.max, tzinfo=timezone.utc)
 
     ranked: list[RankedVideo] = []
     for video in videos:
-        if not _candidate_allowed(video, config, target_dt, previous, relaxed_lookback_ids):
+        if not _candidate_allowed(video, config, target_dt, excluded_ids, relaxed_lookback_ids):
             continue
         channel = channel_map.get(video.channel_id, ChannelConfig(id=video.channel_id))
         score, matched_interests = _score_video(video, channel, config, target_dt)
@@ -82,11 +82,11 @@ def _candidate_allowed(
     video: Video,
     config: AppConfig,
     target_dt: datetime,
-    previously_recommended: set[str],
+    excluded_video_ids: set[str],
     allow_outside_lookback_video_ids: set[str],
 ) -> bool:
     text = _combined_text(video)
-    if config.youtube.exclude_previously_recommended and video.video_id in previously_recommended:
+    if config.youtube.exclude_watched and video.video_id in excluded_video_ids:
         return False
     if any(term.lower() in text for term in config.profile.blocked_terms):
         return False

@@ -1,11 +1,12 @@
 {
   "profile": {
     "interests": [
-      "practical AI engineering",
-      "backend systems",
-      "personal finance",
+      "AI engineering",
+      "large language models",
+      "philosophy",
       "fitness and health",
-      "Indian technology ecosystem"
+      "physics",
+      "software engineering"
     ],
     "preferred_terms": [
       "python",
@@ -29,7 +30,7 @@
     "min_duration_seconds": 300,
     "max_duration_seconds": 5400,
     "max_per_channel": 2,
-    "exclude_previously_recommended": true,
+    "exclude_watched": true,
     "discovery_enabled": true,
     "discovery_results_per_interest": 10
   },

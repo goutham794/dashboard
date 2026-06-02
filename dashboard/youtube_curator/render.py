@@ -459,6 +459,17 @@ def _html_page(
       }});
     }}
 
+    function syncFeedback(videoId, action, active) {{
+      if (window.location.protocol !== "http:" && window.location.protocol !== "https:") {{
+        return;
+      }}
+      fetch("/api/feedback", {{
+        method: "POST",
+        headers: {{"Content-Type": "application/json"}},
+        body: JSON.stringify({{video_id: videoId, action, active}}),
+      }}).catch(() => {{}});
+    }}
+
     function embedUrlWithOrigin(url) {{
       if (window.location.protocol !== "http:" && window.location.protocol !== "https:") {{
         return url;
@@ -507,8 +518,10 @@ def _html_page(
       const action = button.dataset.action;
       state[videoId] = state[videoId] || {{}};
       state[videoId][action] = !state[videoId][action];
+      const active = Boolean(state[videoId][action]);
       persist();
       hydrateButtons();
+      syncFeedback(videoId, action, active);
     }});
 
     hydrateButtons();
@@ -546,7 +559,7 @@ def _video_item(rank: int, item: RankedVideo) -> str:
           </div>
           <div class="actions">
             <button class="watch-link" type="button" data-embed-url="{escape(embed_url, quote=True)}" data-embed-title="{escape(video.title, quote=True)}">Play</button>
-            <button class="action-button" type="button" data-video-id="{escape(video.video_id, quote=True)}" data-action="watched">Watched</button>
+            <button class="action-button" type="button" data-video-id="{escape(video.video_id, quote=True)}" data-action="watched">Seen</button>
             <button class="action-button" type="button" data-video-id="{escape(video.video_id, quote=True)}" data-action="saved">Save</button>
             <button class="action-button" type="button" data-video-id="{escape(video.video_id, quote=True)}" data-action="less_like_this">Less like this</button>
           </div>

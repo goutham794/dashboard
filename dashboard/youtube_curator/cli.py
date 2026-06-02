@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import argparse
+import json
+import sqlite3
 import sys
-from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from datetime import date, datetime, timedelta, timezone
 from errno import EADDRINUSE
 from pathlib import Path
+from urllib.parse import urlparse
 
 from .channel_resolver import add_channels_to_config, collect_sources, resolve_channels
 from .config import DEFAULT_CONFIG, load_config, parse_config, write_default_config
@@ -18,6 +20,8 @@ from .render import render_daily_page
 
 
 DEFAULT_CONFIG_PATH = Path("config/youtube.json")
+WATCHED_FEEDBACK_ACTIONS = {"seen", "watched"}
+ALLOWED_FEEDBACK_ACTIONS = WATCHED_FEEDBACK_ACTIONS | {"saved", "less_like_this"}
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -154,7 +158,7 @@ def _serve_site(config: AppConfig, *, host: str, port: int) -> None:
             f"{index_path} does not exist yet. Run `uv run python -m dashboard.youtube_curator run` first."
         )
 
-    handler = partial(SimpleHTTPRequestHandler, directory=str(site_dir))
+    handler = _site_handler(site_dir, config.storage.database_path)
     server = _create_server(host, port, handler)
     actual_host, actual_port = server.server_address[:2]
     display_host = "127.0.0.1" if actual_host in ("0.0.0.0", "") else actual_host
@@ -179,6 +183,52 @@ def _create_server(host: str, port: int, handler) -> ThreadingHTTPServer:
                 raise
             last_error = exc
     raise SystemExit(f"Could not bind a local server near port {port}: {last_error}")
+
+
+def _site_handler(site_dir: Path, database_path: str):
+    class DashboardRequestHandler(SimpleHTTPRequestHandler):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, directory=str(site_dir), **kwargs)
+
+        def do_POST(self) -> None:
+            if urlparse(self.path).path != "/api/feedback":
+                self.send_error(404, "Not found")
+                return
+
+            try:
+                content_length = int(self.headers.get("Content-Length", "0"))
+            except ValueError:
+                self.send_error(400, "Invalid feedback payload")
+                return
+            if content_length <= 0 or content_length > 4096:
+                self.send_error(400, "Invalid feedback payload")
+                return
+
+            try:
+                payload = json.loads(self.rfile.read(content_length).decode("utf-8"))
+            except json.JSONDecodeError:
+                self.send_error(400, "Invalid feedback JSON")
+                return
+
+            video_id = str(payload.get("video_id", "")).strip()
+            action = str(payload.get("action", "")).strip()
+            active = bool(payload.get("active", True))
+            if not video_id or action not in ALLOWED_FEEDBACK_ACTIONS:
+                self.send_error(400, "Invalid feedback action")
+                return
+
+            try:
+                database = Database(database_path)
+                database.init()
+                database.set_feedback(video_id, action, active=active)
+            except (OSError, sqlite3.DatabaseError, ValueError) as exc:
+                self.send_error(500, f"Could not record feedback: {exc}")
+                return
+
+            self.send_response(204)
+            self.end_headers()
+
+    return DashboardRequestHandler
 
 
 def _add_channels(
@@ -223,12 +273,12 @@ def _recommend_from_db(
         days=config.youtube.lookback_days
     )
     videos = database.list_videos_since(since)
-    previous = database.recommended_video_ids_before(target_date)
+    watched_video_ids = database.feedback_video_ids(WATCHED_FEEDBACK_ACTIONS)
     return rank_videos(
         videos,
         config,
         target_date,
-        previously_recommended=previous,
+        excluded_video_ids=watched_video_ids,
     )
 
 
@@ -248,7 +298,7 @@ def _top_up_with_discovery(
     if not interests:
         return recommendations
 
-    previously_recommended = database.recommended_video_ids_before(target_date)
+    watched_video_ids = database.feedback_video_ids(WATCHED_FEEDBACK_ACTIONS)
     selected_video_ids = {item.video.video_id for item in recommendations}
     configured_channel_ids = {channel.id for channel in config.channels if channel.id}
     needed = target_count - len(recommendations)
@@ -260,7 +310,7 @@ def _top_up_with_discovery(
         max_results=max_results,
         results_per_interest=results_per_interest,
         exclude_channel_ids=configured_channel_ids,
-        exclude_video_ids=previously_recommended | selected_video_ids,
+        exclude_video_ids=watched_video_ids | selected_video_ids,
     )
     for error in errors:
         print(f"Discovery warning: {error}")
@@ -275,7 +325,7 @@ def _top_up_with_discovery(
         discovery_videos,
         config,
         target_date,
-        previously_recommended=previously_recommended | selected_video_ids,
+        excluded_video_ids=watched_video_ids | selected_video_ids,
         allow_outside_lookback_video_ids={video.video_id for video in discovery_videos},
     )
     filled = _append_recommendations(recommendations, discovery_ranked, target_count)

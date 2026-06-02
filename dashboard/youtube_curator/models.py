@@ -21,7 +21,7 @@ class YouTubeSettings:
     min_duration_seconds: int | None = 300
     max_duration_seconds: int | None = 5400
     max_per_channel: int = 2
-    exclude_previously_recommended: bool = True
+    exclude_watched: bool = True
     discovery_enabled: bool = True
     discovery_results_per_interest: int = 10
 

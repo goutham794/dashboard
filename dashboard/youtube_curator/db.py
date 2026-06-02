@@ -136,6 +136,44 @@ class Database:
             ).fetchall()
         return {str(row["video_id"]) for row in rows}
 
+    def feedback_video_ids(self, actions: Iterable[str]) -> set[str]:
+        action_names = [action for action in _unique_nonempty(actions)]
+        if not action_names:
+            return set()
+
+        placeholders = ", ".join("?" for _ in action_names)
+        with self.connect() as connection:
+            rows = connection.execute(
+                f"""
+                SELECT DISTINCT video_id
+                FROM feedback
+                WHERE action IN ({placeholders})
+                """,
+                action_names,
+            ).fetchall()
+        return {str(row["video_id"]) for row in rows}
+
+    def set_feedback(self, video_id: str, action: str, *, active: bool) -> None:
+        normalized_video_id = str(video_id).strip()
+        normalized_action = str(action).strip()
+        if not normalized_video_id or not normalized_action:
+            raise ValueError("feedback needs a video_id and action")
+
+        now = _now_iso()
+        with self.connect() as connection:
+            connection.execute(
+                "DELETE FROM feedback WHERE video_id = ? AND action = ?",
+                (normalized_video_id, normalized_action),
+            )
+            if active:
+                connection.execute(
+                    """
+                    INSERT INTO feedback (video_id, action, created_at)
+                    VALUES (?, ?, ?)
+                    """,
+                    (normalized_video_id, normalized_action, now),
+                )
+
     def replace_recommendations(
         self, recommendation_date: date, recommendations: list[RankedVideo]
     ) -> None:
@@ -186,3 +224,13 @@ def _video_from_row(row: sqlite3.Row) -> Video:
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
+
+def _unique_nonempty(values: Iterable[str]) -> list[str]:
+    result: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        normalized = str(value).strip()
+        if normalized and normalized not in seen:
+            result.append(normalized)
+            seen.add(normalized)
+    return result
