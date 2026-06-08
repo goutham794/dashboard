@@ -11,3 +11,6 @@ wheels/
 
 # Local curator state
 data/
+site/index.html
+site/daily/*.html
+site/daily/*.json

@@ -4,7 +4,9 @@ version = "0.1.0"
 description = "Personal dashboard experiments, starting with a YouTube daily curator."
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "textual>=8.2.7",
+]
 
 [project.scripts]
 yt-curator = "dashboard.youtube_curator.cli:main"

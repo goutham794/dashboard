@@ -1,14 +1,10 @@
 from __future__ import annotations
 
 import argparse
-import json
-import sqlite3
 import sys
-from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta, timezone
-from errno import EADDRINUSE
 from pathlib import Path
-from urllib.parse import urlparse
 
 from .channel_resolver import add_channels_to_config, collect_sources, resolve_channels
 from .config import DEFAULT_CONFIG, load_config, parse_config, write_default_config
@@ -16,12 +12,19 @@ from .db import Database
 from .fetch import fetch_all_channels, fetch_interest_discovery_videos
 from .models import AppConfig, RankedVideo, Video
 from .rank import rank_videos
-from .render import render_daily_page
+from .render import render_daily_json
 
 
 DEFAULT_CONFIG_PATH = Path("config/youtube.json")
 WATCHED_FEEDBACK_ACTIONS = {"seen", "watched"}
-ALLOWED_FEEDBACK_ACTIONS = WATCHED_FEEDBACK_ACTIONS | {"saved", "less_like_this"}
+
+
+@dataclass(slots=True)
+class GenerationResult:
+    recommendation_date: date
+    recommendations: list[RankedVideo]
+    json_path: Path
+    messages: list[str] = field(default_factory=list)
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -35,24 +38,23 @@ def main(argv: list[str] | None = None) -> None:
     init_parser.add_argument("--config", default=str(DEFAULT_CONFIG_PATH))
     init_parser.add_argument("--force", action="store_true")
 
-    run_parser = subparsers.add_parser("run", help="Fetch feeds, rank videos, and render the page.")
+    run_parser = subparsers.add_parser("run", help="Fetch feeds, rank videos, and write daily JSON.")
     run_parser.add_argument("--config", default=str(DEFAULT_CONFIG_PATH))
     run_parser.add_argument("--date", default=None, help="Recommendation date in YYYY-MM-DD format.")
     run_parser.add_argument("--skip-fetch", action="store_true", help="Rank existing DB videos only.")
 
     demo_parser = subparsers.add_parser(
-        "demo", help="Generate a page from built-in sample videos without network access."
+        "demo", help="Generate daily JSON from built-in sample videos without network access."
     )
     demo_parser.add_argument("--config", default=str(DEFAULT_CONFIG_PATH))
     demo_parser.add_argument("--date", default=None, help="Recommendation date in YYYY-MM-DD format.")
 
-    serve_parser = subparsers.add_parser(
-        "serve",
-        help="Serve the generated static site over localhost for embedded playback.",
+    tui_parser = subparsers.add_parser(
+        "tui",
+        help="Open a terminal UI for the generated daily watchlist.",
     )
-    serve_parser.add_argument("--config", default=str(DEFAULT_CONFIG_PATH))
-    serve_parser.add_argument("--host", default="127.0.0.1")
-    serve_parser.add_argument("--port", type=int, default=8000)
+    tui_parser.add_argument("--config", default=str(DEFAULT_CONFIG_PATH))
+    tui_parser.add_argument("--date", default=None, help="Recommendation date in YYYY-MM-DD format.")
 
     add_channels_parser = subparsers.add_parser(
         "add-channels",
@@ -91,9 +93,12 @@ def main(argv: list[str] | None = None) -> None:
         _run_demo(config, target_date)
         return
 
-    if args.command == "serve":
+    if args.command == "tui":
+        from .tui import run_tui
+
         config = _load_config_or_default(Path(args.config))
-        _serve_site(config, host=args.host, port=args.port)
+        target_date = _parse_date(args.date)
+        run_tui(config, target_date)
         return
 
     if args.command == "add-channels":
@@ -109,6 +114,19 @@ def main(argv: list[str] | None = None) -> None:
 
 
 def _run(config: AppConfig, target_date: date, *, skip_fetch: bool) -> None:
+    result = generate_daily_feed(config, target_date, skip_fetch=skip_fetch)
+    for message in result.messages:
+        print(message)
+    print(f"Selected {len(result.recommendations)} videos for {target_date.isoformat()}.")
+    print(f"JSON: {result.json_path}")
+
+
+def generate_daily_feed(
+    config: AppConfig,
+    target_date: date,
+    *,
+    skip_fetch: bool = False,
+) -> GenerationResult:
     enabled_channels = [channel for channel in config.channels if channel.enabled]
     if not enabled_channels:
         raise SystemExit(
@@ -117,23 +135,33 @@ def _run(config: AppConfig, target_date: date, *, skip_fetch: bool) -> None:
 
     database = Database(config.storage.database_path)
     database.init()
+    messages: list[str] = []
 
     if not skip_fetch:
         videos, errors = fetch_all_channels(enabled_channels)
         inserted = database.upsert_videos(videos)
-        print(f"Fetched {len(videos)} videos and upserted {inserted} rows.")
+        messages.append(f"Fetched {len(videos)} videos and upserted {inserted} rows.")
         for error in errors:
-            print(f"Fetch warning: {error}")
+            messages.append(f"Fetch warning: {error}")
 
     recommendations = _recommend_from_db(database, config, target_date)
     if not skip_fetch:
-        recommendations = _top_up_with_discovery(database, config, target_date, recommendations)
-    html_path, json_path = render_daily_page(config, target_date, recommendations)
+        recommendations = _top_up_with_discovery(
+            database,
+            config,
+            target_date,
+            recommendations,
+            messages=messages,
+        )
+    json_path = render_daily_json(config, target_date, recommendations)
     database.replace_recommendations(target_date, recommendations)
 
-    print(f"Selected {len(recommendations)} videos for {target_date.isoformat()}.")
-    print(f"HTML: {html_path}")
-    print(f"JSON: {json_path}")
+    return GenerationResult(
+        recommendation_date=target_date,
+        recommendations=recommendations,
+        json_path=json_path,
+        messages=messages,
+    )
 
 
 def _run_demo(config: AppConfig, target_date: date) -> None:
@@ -142,93 +170,11 @@ def _run_demo(config: AppConfig, target_date: date) -> None:
     videos = _demo_videos(target_date)
     inserted = database.upsert_videos(videos)
     recommendations = _recommend_from_db(database, config, target_date)
-    html_path, json_path = render_daily_page(config, target_date, recommendations)
+    json_path = render_daily_json(config, target_date, recommendations)
     database.replace_recommendations(target_date, recommendations)
     print(f"Loaded {inserted} demo videos.")
     print(f"Selected {len(recommendations)} videos for {target_date.isoformat()}.")
-    print(f"HTML: {html_path}")
     print(f"JSON: {json_path}")
-
-
-def _serve_site(config: AppConfig, *, host: str, port: int) -> None:
-    site_dir = Path(config.output.site_dir)
-    index_path = site_dir / "index.html"
-    if not index_path.exists():
-        raise SystemExit(
-            f"{index_path} does not exist yet. Run `uv run python -m dashboard.youtube_curator run` first."
-        )
-
-    handler = _site_handler(site_dir, config.storage.database_path)
-    server = _create_server(host, port, handler)
-    actual_host, actual_port = server.server_address[:2]
-    display_host = "127.0.0.1" if actual_host in ("0.0.0.0", "") else actual_host
-    print(f"Serving {site_dir} at http://{display_host}:{actual_port}/", flush=True)
-    print("Press Ctrl+C to stop.", flush=True)
-    try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        print("\nServer stopped.")
-    finally:
-        server.server_close()
-
-
-def _create_server(host: str, port: int, handler) -> ThreadingHTTPServer:
-    candidates = [0] if port == 0 else range(port, port + 20)
-    last_error: OSError | None = None
-    for candidate in candidates:
-        try:
-            return ThreadingHTTPServer((host, candidate), handler)
-        except OSError as exc:
-            if exc.errno != EADDRINUSE:
-                raise
-            last_error = exc
-    raise SystemExit(f"Could not bind a local server near port {port}: {last_error}")
-
-
-def _site_handler(site_dir: Path, database_path: str):
-    class DashboardRequestHandler(SimpleHTTPRequestHandler):
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, directory=str(site_dir), **kwargs)
-
-        def do_POST(self) -> None:
-            if urlparse(self.path).path != "/api/feedback":
-                self.send_error(404, "Not found")
-                return
-
-            try:
-                content_length = int(self.headers.get("Content-Length", "0"))
-            except ValueError:
-                self.send_error(400, "Invalid feedback payload")
-                return
-            if content_length <= 0 or content_length > 4096:
-                self.send_error(400, "Invalid feedback payload")
-                return
-
-            try:
-                payload = json.loads(self.rfile.read(content_length).decode("utf-8"))
-            except json.JSONDecodeError:
-                self.send_error(400, "Invalid feedback JSON")
-                return
-
-            video_id = str(payload.get("video_id", "")).strip()
-            action = str(payload.get("action", "")).strip()
-            active = bool(payload.get("active", True))
-            if not video_id or action not in ALLOWED_FEEDBACK_ACTIONS:
-                self.send_error(400, "Invalid feedback action")
-                return
-
-            try:
-                database = Database(database_path)
-                database.init()
-                database.set_feedback(video_id, action, active=active)
-            except (OSError, sqlite3.DatabaseError, ValueError) as exc:
-                self.send_error(500, f"Could not record feedback: {exc}")
-                return
-
-            self.send_response(204)
-            self.end_headers()
-
-    return DashboardRequestHandler
 
 
 def _add_channels(
@@ -287,6 +233,7 @@ def _top_up_with_discovery(
     config: AppConfig,
     target_date: date,
     recommendations: list[RankedVideo],
+    messages: list[str] | None = None,
 ) -> list[RankedVideo]:
     target_count = config.youtube.max_videos_per_day
     if target_count <= 0 or len(recommendations) >= target_count:
@@ -313,12 +260,13 @@ def _top_up_with_discovery(
         exclude_video_ids=watched_video_ids | selected_video_ids,
     )
     for error in errors:
-        print(f"Discovery warning: {error}")
+        _append_message(messages, f"Discovery warning: {error}")
 
     inserted = database.upsert_videos(discovery_videos)
     if discovery_videos:
-        print(
-            f"Fetched {len(discovery_videos)} discovery candidates and upserted {inserted} rows."
+        _append_message(
+            messages,
+            f"Fetched {len(discovery_videos)} discovery candidates and upserted {inserted} rows.",
         )
 
     discovery_ranked = rank_videos(
@@ -330,8 +278,18 @@ def _top_up_with_discovery(
     )
     filled = _append_recommendations(recommendations, discovery_ranked, target_count)
     if len(filled) < target_count:
-        print(f"Discovery filled {len(filled) - len(recommendations)} of {needed} open slots.")
+        _append_message(
+            messages,
+            f"Discovery filled {len(filled) - len(recommendations)} of {needed} open slots.",
+        )
     return filled
+
+
+def _append_message(messages: list[str] | None, message: str) -> None:
+    if messages is None:
+        print(message)
+        return
+    messages.append(message)
 
 
 def _append_recommendations(

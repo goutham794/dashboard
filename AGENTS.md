@@ -31,9 +31,9 @@ another feed.
 The current codebase is a Python MVP:
 
 - CLI entry point: `python -m dashboard.youtube_curator`
+- TUI entry point: `python -m dashboard.youtube_curator tui`
 - Config: `config/youtube.json`
 - SQLite database: `data/youtube_curator.sqlite3`
-- Static output: `site/index.html` and `site/daily/*.html`
 - Daily JSON output: `site/daily/*.json`
 - Channel resolver: `dashboard/youtube_curator/channel_resolver.py`
 
@@ -43,6 +43,7 @@ Use `uv` for Python commands:
 uv run python -m dashboard.youtube_curator demo
 uv run python -m dashboard.youtube_curator add-channels --file channels.txt
 uv run python -m dashboard.youtube_curator run
+uv run python -m dashboard.youtube_curator tui
 uv run python -m unittest discover -s tests
 ```
 
@@ -51,5 +52,5 @@ uv run python -m unittest discover -s tests
 - Keep dependencies minimal unless there is a clear payoff.
 - Avoid building a general web-browsing agent until the source-specific pipeline
   has proven useful.
-- Treat generated site output and local database state as local artifacts.
+- Treat generated JSON output and local database state as local artifacts.
 - Keep ranking logic transparent and easy to tune from config.

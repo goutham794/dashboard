@@ -153,6 +153,49 @@ class Database:
             ).fetchall()
         return {str(row["video_id"]) for row in rows}
 
+    def feedback_actions_for_video(self, video_id: str) -> set[str]:
+        normalized_video_id = str(video_id).strip()
+        if not normalized_video_id:
+            return set()
+
+        with self.connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT DISTINCT action
+                FROM feedback
+                WHERE video_id = ?
+                ORDER BY action
+                """,
+                (normalized_video_id,),
+            ).fetchall()
+        return {str(row["action"]) for row in rows}
+
+    def list_recommendations(self, recommendation_date: date) -> list[RankedVideo]:
+        with self.connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT
+                    recommendations.score AS recommendation_score,
+                    recommendations.reason AS recommendation_reason,
+                    videos.*
+                FROM recommendations
+                JOIN videos ON videos.video_id = recommendations.video_id
+                WHERE recommendations.recommendation_date = ?
+                ORDER BY recommendations.rank ASC
+                """,
+                (recommendation_date.isoformat(),),
+            ).fetchall()
+
+        return [
+            RankedVideo(
+                video=_video_from_row(row),
+                score=float(row["recommendation_score"]),
+                reason=str(row["recommendation_reason"]),
+                matched_interests=[],
+            )
+            for row in rows
+        ]
+
     def set_feedback(self, video_id: str, action: str, *, active: bool) -> None:
         normalized_video_id = str(video_id).strip()
         normalized_action = str(action).strip()

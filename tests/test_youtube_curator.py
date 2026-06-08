@@ -13,13 +13,15 @@ from dashboard.youtube_curator.channel_resolver import (
     extract_channel_id_from_page,
     extract_channel_title_from_page,
 )
-from dashboard.youtube_curator.cli import _recommend_from_db
+from dashboard.youtube_curator.cli import GenerationResult, _recommend_from_db
 from dashboard.youtube_curator.config import DEFAULT_CONFIG, parse_config
 from dashboard.youtube_curator.db import Database
 from dashboard.youtube_curator.fetch import parse_youtube_feed, parse_youtube_search_results
-from dashboard.youtube_curator.models import Video
+from dashboard.youtube_curator.models import RankedVideo, Video
 from dashboard.youtube_curator.rank import rank_videos
-from dashboard.youtube_curator.render import render_daily_page
+from dashboard.youtube_curator.render import render_daily_json, youtube_watch_url
+from dashboard.youtube_curator.tui import DashboardTuiApp, load_dashboard_items
+from textual.widgets import Static
 
 
 SAMPLE_FEED = """<?xml version="1.0" encoding="UTF-8"?>
@@ -310,7 +312,7 @@ class YouTubeCuratorTests(unittest.TestCase):
             fourth = _recommend_from_db(database, config, date(2026, 6, 1))
             self.assertEqual([item.video.video_id for item in fourth], ["repeat"])
 
-    def test_database_and_render_outputs(self) -> None:
+    def test_database_and_render_json_output(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             config = parse_config(
                 {
@@ -339,22 +341,200 @@ class YouTubeCuratorTests(unittest.TestCase):
             database.init()
             self.assertEqual(database.upsert_videos([video]), 1)
             ranked = rank_videos(database.list_videos_since(datetime(2026, 5, 20, tzinfo=timezone.utc)), config, date(2026, 5, 29))
-            html_path, json_path = render_daily_page(config, date(2026, 5, 29), ranked)
-            self.assertTrue(html_path.exists())
+            json_path = render_daily_json(config, date(2026, 5, 29), ranked)
             self.assertTrue(json_path.exists())
-            html = html_path.read_text(encoding="utf-8")
-            self.assertIn("Test Watchlist", html)
-            self.assertIn("color-scheme: dark", html)
-            self.assertIn("--bg: #0f1115", html)
-            self.assertIn("https://www.youtube-nocookie.com/embed/stored?autoplay=1&amp;rel=0", html)
-            self.assertIn(">Play</button>", html)
-            self.assertNotIn("Play here", html)
-            self.assertNotIn("Open YouTube", html)
-            self.assertIn('document.createElement("iframe")', html)
-            self.assertIn('searchParams.set("origin"', html)
-            self.assertIn('fetch("/api/feedback"', html)
-            self.assertIn(">Seen</button>", html)
-            self.assertIn("Embedded playback needs a local server", html)
+            payload = json_path.read_text(encoding="utf-8")
+            self.assertIn("Test Watchlist", payload)
+            self.assertIn("stored", payload)
+            self.assertIn("Backend systems with Python", payload)
+            self.assertIn(
+                '"watch_url": "https://www.youtube-nocookie.com/embed/stored?autoplay=1&rel=0&modestbranding=1&playsinline=1"',
+                payload,
+            )
+
+    def test_youtube_watch_url_uses_nocookie_embed_player(self) -> None:
+        self.assertEqual(
+            youtube_watch_url(_test_video("id with spaces")),
+            "https://www.youtube-nocookie.com/embed/id%20with%20spaces?autoplay=1&rel=0&modestbranding=1&playsinline=1",
+        )
+
+
+class DashboardTuiTests(unittest.TestCase):
+    def test_tui_loads_generated_json_and_upserts_feedback_target(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config = _test_config(temp_dir)
+            target_date = date(2026, 5, 29)
+            video = _test_video("json-video")
+            ranked = [
+                RankedVideo(
+                    video=video,
+                    score=4.25,
+                    reason="Matches backend systems",
+                    matched_interests=["backend systems"],
+                )
+            ]
+
+            render_daily_json(config, target_date, ranked)
+            items = load_dashboard_items(config, target_date)
+
+            self.assertEqual(len(items), 1)
+            self.assertEqual(items[0].rank, 1)
+            self.assertEqual(items[0].video.video_id, "json-video")
+            self.assertEqual(items[0].ranked_video.matched_interests, ["backend systems"])
+
+            database = Database(config.storage.database_path)
+            database.set_feedback("json-video", "saved", active=True)
+            reloaded = load_dashboard_items(config, target_date)
+            self.assertEqual(reloaded[0].feedback_actions, {"saved"})
+
+    def test_tui_falls_back_to_sqlite_recommendations(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config = _test_config(temp_dir)
+            target_date = date(2026, 5, 29)
+            video = _test_video("db-video")
+            database = Database(config.storage.database_path)
+            database.init()
+            database.upsert_videos([video])
+            database.replace_recommendations(
+                target_date,
+                [RankedVideo(video=video, score=3.5, reason="Stored recommendation")],
+            )
+
+            items = load_dashboard_items(config, target_date)
+
+            self.assertEqual(len(items), 1)
+            self.assertEqual(items[0].video.video_id, "db-video")
+            self.assertEqual(items[0].ranked_video.reason, "Stored recommendation")
+            self.assertEqual(items[0].ranked_video.score, 3.5)
+
+    def test_tui_open_uses_clean_player_url(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config = _test_config(temp_dir)
+            target_date = date(2026, 5, 29)
+            video = _test_video("open-video")
+            ranked = [RankedVideo(video=video, score=1.0, reason="Test")]
+            render_daily_json(config, target_date, ranked)
+            items = load_dashboard_items(config, target_date)
+
+            app = _RecordingDashboardTuiApp(config, target_date, items)
+            app._open_item(items[0])
+
+            self.assertEqual(app.opened_urls, [youtube_watch_url(video)])
+
+
+class DashboardTuiAsyncTests(unittest.IsolatedAsyncioTestCase):
+    async def test_tui_renders_detail_and_records_watched_feedback(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config = _test_config(temp_dir)
+            target_date = date(2026, 5, 29)
+            video = _test_video("tui-video")
+            render_daily_json(
+                config,
+                target_date,
+                [
+                    RankedVideo(
+                        video=video,
+                        score=6.0,
+                        reason="A useful systems video",
+                        matched_interests=["systems"],
+                    )
+                ],
+            )
+            app = DashboardTuiApp(config, target_date, load_dashboard_items(config, target_date))
+
+            async with app.run_test() as pilot:
+                await pilot.pause()
+                detail = pilot.app.query_one("#detail", Static)
+                self.assertIn("Backend systems with Python", str(detail.content))
+                await pilot.press("w")
+                await pilot.pause()
+
+            database = Database(config.storage.database_path)
+            self.assertEqual(database.feedback_actions_for_video("tui-video"), {"watched"})
+
+    async def test_tui_can_generate_and_reload_daily_feed(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config = _test_config(temp_dir)
+            target_date = date(2026, 5, 29)
+            generated_video = _test_video("generated-video")
+
+            def fake_generate(config, recommendation_date):
+                ranked = [
+                    RankedVideo(
+                        video=generated_video,
+                        score=8.0,
+                        reason="Generated from the TUI",
+                        matched_interests=["systems"],
+                    )
+                ]
+                json_path = render_daily_json(config, recommendation_date, ranked)
+                database = Database(config.storage.database_path)
+                database.init()
+                database.upsert_videos([generated_video])
+                database.replace_recommendations(recommendation_date, ranked)
+                return GenerationResult(
+                    recommendation_date=recommendation_date,
+                    recommendations=ranked,
+                    json_path=json_path,
+                    messages=["Generated test feed"],
+                )
+
+            app = DashboardTuiApp(config, target_date, [], feed_generator=fake_generate)
+
+            async with app.run_test() as pilot:
+                await pilot.pause()
+                await pilot.press("g")
+                await pilot.pause()
+                detail = pilot.app.query_one("#detail", Static)
+                self.assertIn("Generated from the TUI", str(detail.content))
+
+            self.assertTrue((Path(temp_dir) / "site" / "daily" / "2026-05-29.json").exists())
+
+
+def _test_config(temp_dir: str):
+    return parse_config(
+        {
+            **DEFAULT_CONFIG,
+            "storage": {"database_path": str(Path(temp_dir) / "curator.sqlite3")},
+            "output": {"site_dir": str(Path(temp_dir) / "site"), "page_title": "Test Watchlist"},
+            "youtube": {
+                **DEFAULT_CONFIG["youtube"],
+                "min_duration_seconds": 60,
+            },
+        }
+    )
+
+
+def _test_video(video_id: str) -> Video:
+    return Video(
+        video_id=video_id,
+        channel_id="UC1",
+        channel_title="Systems",
+        title="Backend systems with Python",
+        description="Practical engineering.",
+        url=f"https://www.youtube.com/watch?v={video_id}",
+        thumbnail_url=f"https://i.ytimg.com/vi/{video_id}/hqdefault.jpg",
+        published_at=datetime(2026, 5, 28, tzinfo=timezone.utc),
+        duration_seconds=900,
+        view_count=1234,
+    )
+
+
+class _RecordingDashboardTuiApp(DashboardTuiApp):
+    def __init__(
+        self,
+        config,
+        recommendation_date,
+        items,
+    ) -> None:
+        super().__init__(config, recommendation_date, items)
+        self.opened_urls: list[str] = []
+
+    def open_url(self, url: str, **kwargs) -> None:
+        self.opened_urls.append(url)
+
+    def notify(self, *args, **kwargs) -> None:
+        return None
 
 
 if __name__ == "__main__":
